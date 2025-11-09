@@ -8,7 +8,7 @@ Frontend web application for generating and managing user stories. Designed to w
 
 ```bash
 # Navigate to project
-cd /mnt/c/Users/avish/OneDrive/Desktop/User\ Story\ automation\ frontend
+cd /mnt/c/Users/avish/OneDrive/Desktop/User\ Story\ automation\ frontend/user-story-automation
 
 # Start server
 npm start
@@ -27,35 +27,47 @@ npm run status
 ```
 .
 ├── pages/              # HTML pages
-│   ├── index.html
-│   └── stories.html
+│   ├── index.html      # Main page - project input
+│   └── stories.html    # Stories list and details
 ├── assets/             # Static assets
 │   ├── css/
+│   │   └── styles.css
 │   └── js/
+│       └── script.js
 ├── config/             # Configuration
-│   └── nginx.conf
+│   └── nginx.conf      # Nginx server configuration
 ├── scripts/            # Utility scripts
-│   ├── start.sh
-│   └── stop.sh
+│   ├── start.sh        # Start nginx server
+│   └── stop.sh         # Stop nginx server
 ├── docs/               # Documentation
-│   ├── SETUP.md
-│   ├── INTEGRATION.md
-│   └── TROUBLESHOOTING.md
+│   ├── SETUP.md        # Setup instructions
+│   └── INTEGRATION.md  # Backend integration guide
 └── package.json        # npm scripts
 ```
 
 ## Features
 
-- **Page 1**: Project description input and story generation
-- **Page 2**: Dynamic user stories list with details (Title, Description, DoD, Test Cases)
-- Supports any number of user stories
-- Ready for Python backend integration
+- **Page 1 (index.html)**: Project description input and story generation
+- **Page 2 (stories.html)**: Dynamic user stories list with details
+  - Title, Description, Definition of Done, Test Cases
+  - Supports any number of user stories
+  - Individual and bulk integration options
+
+## Commands
+
+```bash
+npm start      # Start nginx server
+npm stop       # Stop nginx server
+npm run restart # Restart nginx server
+npm test       # Test nginx configuration
+npm run status # Check if server is running
+```
 
 ## Backend Integration
 
-See [docs/INTEGRATION.md](docs/INTEGRATION.md) for integration guide.
+See [docs/INTEGRATION.md](docs/INTEGRATION.md) for detailed integration guide.
 
-**Expected API endpoints:**
+**Required API endpoints:**
 - `POST /api/generate-stories` - Generate stories from project description
 - `POST /api/integrate-story` - Integrate single story
 - `POST /api/integrate-all` - Integrate all stories
@@ -65,27 +77,15 @@ See [docs/INTEGRATION.md](docs/INTEGRATION.md) for integration guide.
 {
   "stories": [{
     "id": 1,
-    "title": "...",
-    "description": "...",
-    "definitionOfDone": "...",
-    "testCases": "..."
+    "title": "Story title",
+    "description": "Story description",
+    "definitionOfDone": "Definition of done",
+    "testCases": "Test cases"
   }]
 }
 ```
 
 ## Documentation
 
-- [docs/SETUP.md](docs/SETUP.md) - Setup instructions
+- [docs/SETUP.md](docs/SETUP.md) - Setup and installation instructions
 - [docs/INTEGRATION.md](docs/INTEGRATION.md) - Backend integration guide
-- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Common issues
-- [docs/GITHUB.md](docs/GITHUB.md) - GitHub setup guide
-
-## Commands
-
-```bash
-npm start      # Start server
-npm stop       # Stop server
-npm run restart # Restart server
-npm test       # Test nginx config
-npm run status # Check if running
-```

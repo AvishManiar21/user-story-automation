@@ -123,10 +123,16 @@ function getPlaceholderStories() {
 // Render the story list dynamically
 function renderStoryList() {
     const storyList = document.getElementById('storyList');
-    storyList.innerHTML = ''; // Clear existing items
+    // Clear existing items safely
+    while (storyList.firstChild) {
+        storyList.removeChild(storyList.firstChild);
+    }
     
     if (userStories.length === 0) {
-        storyList.innerHTML = '<li class="no-stories">No user stories available</li>';
+        const noStoriesItem = document.createElement('li');
+        noStoriesItem.className = 'no-stories';
+        noStoriesItem.textContent = 'No user stories available';
+        storyList.appendChild(noStoriesItem);
         return;
     }
     

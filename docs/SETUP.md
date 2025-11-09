@@ -1,67 +1,72 @@
 # Setup Guide
 
-## Quick Start (WSL)
+## Prerequisites
 
-1. **Open WSL terminal**
-
-2. **Navigate to project:**
-   ```bash
-   cd /mnt/c/Users/avish/OneDrive/Desktop/User\ Story\ automation\ frontend
-   ```
-
-3. **Start server:**
-   ```bash
-   npm start
-   ```
-
-4. **Access:** http://localhost
+- Windows with WSL (Windows Subsystem for Linux) installed
+- Nginx installed in WSL
 
 ## Installation
 
-### Install Nginx (if needed)
+### 1. Install Nginx (if not already installed)
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y nginx
 ```
 
-## Manual Commands
+### 2. Navigate to Project
+
+```bash
+cd /mnt/c/Users/avish/OneDrive/Desktop/User\ Story\ automation\ frontend/user-story-automation
+```
+
+## Quick Start
+
+```bash
+# Start the server
+npm start
+
+# Access the application
+# Open browser: http://localhost
+```
+
+## Server Management
+
+```bash
+# Start server
+npm start
+
+# Stop server
+npm stop
+
+# Restart server
+npm run restart
+
+# Check server status
+npm run status
+
+# Test nginx configuration
+npm test
+```
+
+## Manual Nginx Commands
+
+If you need to run nginx commands manually:
 
 ```bash
 # Test configuration
-npm test
+sudo nginx -t -c config/nginx.conf
 
-# Start manually
+# Start nginx with custom config
 sudo nginx -c "$(pwd)/config/nginx.conf"
 
-# Stop manually
+# Stop nginx
 sudo nginx -s stop
-
-# Check status
-npm run status
 ```
 
 ## Troubleshooting
 
-### Port 80 in use
-```bash
-# Find what's using port 80
-sudo lsof -i :80
-
-# Stop nginx first
-npm stop
-
-# Start again
-npm start
-```
-
-### Permission errors
-- Use `sudo` for nginx commands
-- Or use `npm start` which handles sudo automatically
-
-### Check logs
-```bash
-sudo tail -f /var/log/nginx/error.log
-```
-
-See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for more help.
+Common issues:
+- Port 80 already in use: Stop nginx with `npm stop` and restart with `npm start`
+- Permission errors: Use `sudo` for nginx commands or use `npm start` which handles sudo automatically
+- Configuration errors: Test configuration with `npm test` and check error logs with `sudo tail /var/log/nginx/error.log`

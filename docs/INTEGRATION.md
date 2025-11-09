@@ -1,68 +1,98 @@
 # Backend Integration Guide
 
+This guide explains how to connect your Python backend to the frontend application.
+
 ## Overview
 
-Connect your Python backend to generate user stories from project descriptions.
+The frontend expects a Python backend API running on `http://localhost:5000` (or your configured backend URL). The frontend will send HTTP requests to generate and manage user stories.
 
-## API Endpoints Required
+## Required API Endpoints
 
 ### 1. Generate Stories
-**POST** `/api/generate-stories`
+
+**Endpoint:** `POST /api/generate-stories`
 
 **Request:**
 ```json
 {
-  "projectDescription": "Your project description"
+  "projectDescription": "Your project description text"
 }
 ```
 
 **Response:**
 ```json
 {
-  "stories": [{
-    "id": 1,
-    "title": "As a user, I want to...",
-    "description": "...",
-    "definitionOfDone": "...",
-    "testCases": "..."
-  }]
+  "stories": [
+    {
+      "id": 1,
+      "title": "As a user, I want to...",
+      "description": "Full story description",
+      "definitionOfDone": "Definition of done criteria",
+      "testCases": "Test cases for this story"
+    }
+  ]
 }
 ```
 
-### 2. Integrate Story
-**POST** `/api/integrate-story`
+### 2. Integrate Single Story
+
+**Endpoint:** `POST /api/integrate-story`
+
+**Request:**
 ```json
-{ "storyId": 1 }
+{
+  "storyId": 1
+}
 ```
 
-### 3. Integrate All
-**POST** `/api/integrate-all`
+**Response:**
 ```json
-{ "storyIds": [1, 2, 3] }
+{
+  "success": true,
+  "message": "Story integrated successfully"
+}
 ```
 
-## Python Backend Example
+### 3. Integrate All Stories
+
+**Endpoint:** `POST /api/integrate-all`
+
+**Request:**
+```json
+{
+  "storyIds": [1, 2, 3]
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "All stories integrated successfully"
+}
+```
+
+## Python Backend Example (Flask)
 
 ```python
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from your_library import generate_user_stories
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Enable CORS for frontend
 
 @app.route('/api/generate-stories', methods=['POST'])
 def generate_stories():
     data = request.json
-    project_description = data.get('projectDescription')
+    project_description = data.get('projectDescription', '')
     
-    # Call your Python library
-    stories = generate_user_stories(project_description)
+    # Call your story generation function
+    stories = your_story_generator(project_description)
     
-    # Format stories
-    formatted = []
+    # Format response
+    formatted_stories = []
     for idx, story in enumerate(stories, 1):
-        formatted.append({
+        formatted_stories.append({
             "id": idx,
             "title": story.get('title', ''),
             "description": story.get('description', ''),
@@ -70,44 +100,111 @@ def generate_stories():
             "testCases": story.get('test_cases', '')
         })
     
-    return jsonify({"stories": formatted})
+    return jsonify({"stories": formatted_stories})
+
+@app.route('/api/integrate-story', methods=['POST'])
+def integrate_story():
+    data = request.json
+    story_id = data.get('storyId')
+    
+    # Your integration logic here
+    # ...
+    
+    return jsonify({"success": True, "message": "Story integrated"})
+
+@app.route('/api/integrate-all', methods=['POST'])
+def integrate_all():
+    data = request.json
+    story_ids = data.get('storyIds', [])
+    
+    # Your integration logic here
+    # ...
+    
+    return jsonify({"success": True, "message": "All stories integrated"})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 ```
 
-## Update Frontend
+## Python Backend Example (FastAPI)
 
-Edit `assets/js/script.js` and uncomment the TODO sections:
+```python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-1. **`generateUserStories()`** - Uncomment API call
-2. **`loadUserStories()`** - Uncomment API call
-3. **`integrateStory()`** - Uncomment API call
-4. **`integrateAll()`** - Uncomment API call
+app = FastAPI()
 
-**Example:**
-```javascript
-// Replace TODO section with:
-fetch('http://localhost:5000/api/generate-stories', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ projectDescription: projectDescription })
-})
-.then(response => response.json())
-.then(data => {
-    updateUserStories(data.stories);
-    window.location.href = 'stories.html';
-})
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class ProjectDescription(BaseModel):
+    projectDescription: str
+
+class StoryId(BaseModel):
+    storyId: int
+
+class StoryIds(BaseModel):
+    storyIds: list[int]
+
+@app.post("/api/generate-stories")
+def generate_stories(project: ProjectDescription):
+    # Your story generation logic
+    stories = your_story_generator(project.projectDescription)
+    return {"stories": stories}
+
+@app.post("/api/integrate-story")
+def integrate_story(story: StoryId):
+    # Your integration logic
+    return {"success": True, "message": "Story integrated"}
+
+@app.post("/api/integrate-all")
+def integrate_all(stories: StoryIds):
+    # Your integration logic
+    return {"success": True, "message": "All stories integrated"}
 ```
+
+## Frontend Configuration
+
+1. **Edit `assets/js/script.js`**
+2. **Uncomment the TODO sections** in these functions:
+   - `generateUserStories()` - Line 28-41
+   - `loadUserStories()` - Line 65-74
+   - `integrateStory()` - Line 190-194
+   - `integrateAll()` - Line 210-214
+
+3. **Update the API base URL** if your backend runs on a different port:
+   ```javascript
+   const API_BASE_URL = 'http://localhost:5000';
+   ```
 
 ## Testing
 
-1. Start Python backend: `python app.py`
-2. Start frontend: `npm start`
-3. Open: http://localhost
-4. Enter project description and generate stories
+1. Start your Python backend:
+   ```bash
+   python app.py
+   # or
+   uvicorn main:app --reload
+   ```
 
-## CORS Setup
+2. Start the frontend:
+   ```bash
+   npm start
+   ```
+
+3. Open browser: http://localhost
+
+4. Enter a project description and click "Generate User Stories"
+
+## CORS Configuration
+
+Make sure CORS is enabled in your backend to allow requests from the frontend.
 
 **Flask:**
 ```python

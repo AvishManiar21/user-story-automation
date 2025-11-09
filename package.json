@@ -3,13 +3,11 @@
   "version": "1.0.0",
   "description": "Frontend for User Story Automation",
   "scripts": {
-    "start": "./scripts/start.sh",
-    "stop": "./scripts/stop.sh",
-    "restart": "./scripts/stop.sh && ./scripts/start.sh",
+    "start": "bash scripts/start.sh",
+    "stop": "bash scripts/stop.sh",
+    "restart": "bash scripts/stop.sh && bash scripts/start.sh",
     "test": "sudo nginx -t -c config/nginx.conf 2>&1 | grep -E '(ok|failed)' || echo 'Test completed'",
-    "status": "pgrep -x nginx > /dev/null && echo '✅ Server is running' || echo 'ℹ️  Server is not running'",
-    "git:setup": "./scripts/setup-git.sh",
-    "git:push": "./scripts/git-push.sh"
+    "status": "pgrep -x nginx > /dev/null && echo '✅ Server is running at http://localhost' || echo 'ℹ️  Server is not running'"
   },
   "keywords": ["user-stories", "frontend"],
   "author": "",

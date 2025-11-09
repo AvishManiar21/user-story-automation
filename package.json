@@ -1,0 +1,18 @@
+{
+  "name": "user-story-automation-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for User Story Automation",
+  "scripts": {
+    "start": "./scripts/start.sh",
+    "stop": "./scripts/stop.sh",
+    "restart": "./scripts/stop.sh && ./scripts/start.sh",
+    "test": "sudo nginx -t -c config/nginx.conf 2>&1 | grep -E '(ok|failed)' || echo 'Test completed'",
+    "status": "pgrep -x nginx > /dev/null && echo '✅ Server is running' || echo 'ℹ️  Server is not running'",
+    "git:setup": "./scripts/setup-git.sh",
+    "git:push": "./scripts/git-push.sh"
+  },
+  "keywords": ["user-stories", "frontend"],
+  "author": "",
+  "license": "ISC"
+}
+

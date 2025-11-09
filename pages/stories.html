@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate User Stories</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+    <div class="window-frame">
+        <div class="title-bar">
+            <div class="title-text">Generate User Stories</div>
+            <div class="window-controls">
+                <div class="control-btn minimize"></div>
+                <div class="control-btn maximize"></div>
+                <div class="control-btn close"></div>
+            </div>
+        </div>
+        <div class="main-layout">
+            <div class="sidebar">
+                <h2 class="sidebar-header">User Stories</h2>
+                <ul class="story-list" id="storyList">
+                    <!-- Stories will be dynamically generated here -->
+                </ul>
+                <button class="btn btn-integrate-all" onclick="integrateAll()">Integrate All</button>
+            </div>
+            <div class="content-panel">
+                <div class="story-details" id="storyDetails">
+                    <div class="detail-section">
+                        <div class="detail-label">Title:</div>
+                        <div class="detail-value" id="storyTitle">Select a user story to view details</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Description:</div>
+                        <div class="detail-value" id="storyDescription">-</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Definition of Done:</div>
+                        <div class="detail-value" id="storyDoD">-</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Test Cases:</div>
+                        <div class="detail-value" id="storyTestCases">-</div>
+                    </div>
+                    <button class="btn btn-integrate" onclick="integrateStory()">Integrate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/assets/js/script.js"></script>
+</body>
+</html>
+

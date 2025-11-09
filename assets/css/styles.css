@@ -1,0 +1,240 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    font-size: 16px;
+}
+
+.window-frame {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 900px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.title-bar {
+    background: #f5f5f5;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.title-text {
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+}
+
+.window-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.control-btn.close {
+    background-color: #007AFF;
+    border-color: #007AFF;
+}
+
+.main-content {
+    padding: 50px 40px;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 650px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.input-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    align-items: stretch;
+}
+
+.project-input {
+    flex: 1;
+    padding: 14px 18px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.project-input:focus {
+    border-color: #007AFF;
+}
+
+.project-input::placeholder {
+    color: #999;
+}
+
+.btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn:active {
+    opacity: 0.8;
+}
+
+.btn-browse {
+    background-color: #007AFF;
+    color: white;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background-color: #007AFF;
+    color: white;
+    width: 100%;
+    padding: 16px 28px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Stories Page Layout */
+.main-layout {
+    display: flex;
+    min-height: 600px;
+}
+
+.sidebar {
+    width: 33.33%;
+    background: #fafafa;
+    border-right: 1px solid #e0e0e0;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    color: #007AFF;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+
+.story-list {
+    list-style: none;
+    flex: 1;
+}
+
+.story-item {
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 16px;
+    color: #333;
+}
+
+.story-item:hover {
+    background-color: #f0f0f0;
+}
+
+.story-item.active {
+    background-color: #e3f2fd;
+    color: #007AFF;
+    font-weight: 500;
+}
+
+.no-stories {
+    padding: 14px 18px;
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    font-size: 16px;
+}
+
+.btn-integrate-all {
+    background-color: #007AFF;
+    color: white;
+    width: 100%;
+    margin-top: auto;
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.content-panel {
+    flex: 1;
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.story-details {
+    flex: 1;
+}
+
+.detail-section {
+    margin-bottom: 28px;
+}
+
+.detail-label {
+    font-weight: 600;
+    font-size: 17px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.detail-value {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.7;
+    padding-left: 4px;
+}
+
+.btn-integrate {
+    background-color: #007AFF;
+    color: white;
+    padding: 14px 28px;
+    margin-top: auto;
+    align-self: flex-end;
+    font-size: 16px;
+    font-weight: 600;
+}
+

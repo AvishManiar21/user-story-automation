@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate User Stories</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+    <div class="window-frame">
+        <div class="title-bar">
+            <div class="title-text">Generate User Stories</div>
+            <div class="window-controls">
+                <div class="control-btn minimize"></div>
+                <div class="control-btn maximize"></div>
+                <div class="control-btn close"></div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="form-container">
+                <div class="input-group">
+                    <input type="text" id="projectDescription" placeholder="Select a project description" class="project-input">
+                    <button class="btn btn-browse" onclick="document.getElementById('fileInput').click()">Browse</button>
+                    <input type="file" id="fileInput" style="display: none;" accept=".txt,.md,.doc,.docx" onchange="handleFileSelect(event)">
+                </div>
+                <button class="btn btn-primary" onclick="generateUserStories()">Generate User Stories</button>
+            </div>
+        </div>
+    </div>
+    <script src="/assets/js/script.js"></script>
+</body>
+</html>
+

@@ -8,7 +8,12 @@
     "force-stop": "bash scripts/force-stop.sh",
     "restart": "bash scripts/stop.sh && bash scripts/start.sh",
     "test": "sudo nginx -t -c config/nginx.conf 2>&1 | grep -E '(ok|failed)' || echo 'Test completed'",
-    "status": "pgrep -x nginx > /dev/null && echo '✅ Server is running at http://localhost' || echo 'ℹ️  Server is not running'"
+    "status": "pgrep -x nginx > /dev/null && echo '✅ Server is running at http://localhost' || echo 'ℹ️  Server is not running'",
+    "start:backend": "bash scripts/start-backend.sh",
+    "stop:backend": "bash scripts/stop-backend.sh",
+    "start:all": "bash scripts/start-backend.sh && sleep 2 && bash scripts/start.sh",
+    "test:backend": "bash test-backend.sh",
+    "setup:check": "bash scripts/setup-check.sh"
   },
   "keywords": ["user-stories", "frontend"],
   "author": "",

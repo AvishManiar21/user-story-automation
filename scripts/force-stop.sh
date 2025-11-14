@@ -43,4 +43,3 @@ else
     echo "✅ Port 80 should be free now"
     exit 0
 fi
-

@@ -22,6 +22,11 @@
                 <ul class="story-list" id="storyList">
                     <!-- Stories will be dynamically generated here -->
                 </ul>
+                <div id="noStoriesMessage" style="display: none; padding: 20px; text-align: center; color: #666;">
+                    <p>No user stories available.</p>
+                    <p style="margin-top: 10px; font-size: 14px;">Please go back and generate stories first.</p>
+                    <button class="btn btn-primary" onclick="window.location.href='index.html'" style="margin-top: 15px;">Go to Generate Page</button>
+                </div>
                 <button class="btn btn-integrate-all" onclick="integrateAll()">Integrate All</button>
             </div>
             <div class="content-panel">
@@ -47,7 +52,7 @@
             </div>
         </div>
     </div>
-    <script src="/assets/js/script.js"></script>
+    <script src="/assets/js/script.js?v=2"></script>
 </body>
 </html>
 

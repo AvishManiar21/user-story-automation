@@ -64,6 +64,14 @@ build/
 .env.local
 .env.*.local
 
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyc
+
 # Cache
 .cache/
 *.cache

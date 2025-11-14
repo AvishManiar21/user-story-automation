@@ -2,19 +2,30 @@ import json
 import os
 
 def save_json_output(requirements, epics, test_cases, docx_path):
+    """
+    Save combined requirements, epics, and test cases to JSON output file.
+
+    Args:
+        requirements: Requirements text
+        epics: JSON string of epics
+        test_cases: JSON string of test cases
+        docx_path: Path to the original document file
+
+    Returns:
+        Path to the saved output file
+    """
     # Generate the output file name with the same base name as the input .docx file but with .txt extension
     base_name = os.path.basename(docx_path)     # Extracts the base name from the given file_path
     # Splits the base name into two parts: the name and the extension, returning only the name part
     output_file_name = os.path.splitext(base_name)[0] + '.txt'
-    
 
-    output_dir = "../autoAgile/json_output" 
+    # Use absolute path relative to this file's location
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(current_dir, "json_output")
 
-
-# Check if the directory exists, and if not, create it
+    # Check if the directory exists, and if not, create it
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, mode=0o777, exist_ok=True)
-
 
     output_path = os.path.join(output_dir, output_file_name)
     
@@ -52,3 +63,6 @@ def save_json_output(requirements, epics, test_cases, docx_path):
 
     with open(output_path, 'w') as file:
         file.write(final_json)
+
+    print(f"✅ Output saved to: {output_path}")
+    return output_path

@@ -165,10 +165,11 @@ def generate_stories():
         
         if not allowed_file(file.filename):
             return jsonify({'error': 'File type not allowed. Please upload .docx, .doc, .txt, or .md files'}), 400
-        
-        if not API_KEY:
+
+        # Only check API key if using OpenAI (not Ollama)
+        if not USE_OLLAMA and not API_KEY:
             return jsonify({'error': 'OpenAI API key not configured. Set auth_key environment variable'}), 500
-        
+
         # Save uploaded file temporarily
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)

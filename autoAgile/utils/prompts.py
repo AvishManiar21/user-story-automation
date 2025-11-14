@@ -177,27 +177,48 @@ def generate_test_cases(requirements:str,chat, mode)->str:
     re = chain.invoke({"input": requirements})
     return re.replace("json","").replace("```","")
 
-def rat(refine, thought, x,chat, mode="prod"):
-    prompt = (PromptTemplate.from_template("""As a voter, you vote for the input that is more accurate, concise and easy
+def rat(refine, thought, x, chat, mode="prod"):
+    """
+    Refine-and-Think: Refines input, votes between original and refined, then applies thought process.
+
+    Args:
+        refine: Function to refine the input
+        thought: Function to apply thought process
+        x: Input text to process
+        chat: LLM chat instance
+        mode: "prod" or "debug" mode
+
+    Returns:
+        Processed output from thought function
+    """
+    prompt = PromptTemplate.from_template("""As a voter, you vote for the input that is more accurate, concise and easy
                                            to understand. Given two input texts, the first:\n
                                         {input_first}\n and the second:\n" {input_second}\n", which one you vote for?
-                                           Please only answer with your vote."""))
+                                           Please only answer with your vote.""")
 
-    x1 = refine(x, chat,mode)
+    x1 = refine(x, chat, mode)
     if mode == "debug":
         print("Refine successfully:\n")
         print("=============================\n")
         print(x1)
         print("=============================\n")
-    chain = LLMChain(llm=chat, prompt=prompt)
+
+    # Use modern LCEL syntax instead of deprecated LLMChain
+    chain = prompt | chat | output_parser
     better = None
-    re = chain.invoke({"input_first":x, "input_second":x1})
+    re_text = chain.invoke({"input_first": x, "input_second": x1})
+
     if mode == "debug":
-        print(re["text"])
-    if '1' in re["text"] or 'first' in re['text']:
+        print(re_text)
+
+    if '1' in re_text.lower() or 'first' in re_text.lower():
         better = x
-    elif '2' in re["text"] or 'second' in re['text']:
+    elif '2' in re_text.lower() or 'second' in re_text.lower():
         better = x1
+    else:
+        # Default to refined version if vote is unclear
+        better = x1
+
     x2 = thought(better, chat, mode)
     return x2
 

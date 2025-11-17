@@ -29,40 +29,80 @@ def save_json_output(requirements, epics, test_cases, docx_path):
 
     output_path = os.path.join(output_dir, output_file_name)
     
-
-    data1 = json.loads(epics)
-    data2 = json.loads(test_cases)
-    combined_data = {**data1, **data2}
-
+    # Parse epics and test cases
+    try:
+        data1 = json.loads(epics)
+    except json.JSONDecodeError as e:
+        print(f"Warning: Failed to parse epics JSON: {e}")
+        data1 = {"User Stories": []}
     
-
-
-    lines = requirements.strip().split('\n')
-
-    # Use the first line as the key
-    key = lines[0].strip().rstrip(':')
-
-    # Collect the rest of the lines into a list
-    values = [line.strip() for line in lines[1:]]
-
-    # Create a dictionary with the key and values list
-    data0 = {
-        key: values
-    }
-
+    try:
+        data2 = json.loads(test_cases)
+    except json.JSONDecodeError as e:
+        print(f"Warning: Failed to parse test_cases JSON: {e}")
+        data2 = {"testCases": []}
+    
+    # Try to parse requirements as JSON first
+    req_json_data = {}
+    try:
+        # Check if requirements is already JSON
+        if requirements.strip().startswith('{'):
+            req_json_data = json.loads(requirements)
+        else:
+            # Try to extract JSON from the text
+            import re
+            json_match = re.search(r'\{.*\}', requirements, re.DOTALL)
+            if json_match:
+                req_json_data = json.loads(json_match.group())
+            else:
+                # Fallback: parse as simple text format
+                lines = requirements.strip().split('\n')
+                if lines:
+                    key = lines[0].strip().rstrip(':')
+                    values = [line.strip() for line in lines[1:] if line.strip()]
+                    req_json_data = {key: values}
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"Warning: Failed to parse requirements, using empty structure: {e}")
+        req_json_data = {"requirements": []}
+    
+    # Combine all data - ensure we have proper structure
+    final_data = {}
+    
+    # Add requirements (ensure it's an array)
+    if "requirements" in req_json_data:
+        final_data["requirements"] = req_json_data["requirements"]
+    elif isinstance(req_json_data, dict) and len(req_json_data) == 1:
+        # If it's a single key dict, check if it's requirements
+        key = list(req_json_data.keys())[0]
+        if "requirement" in key.lower():
+            final_data["requirements"] = req_json_data[key] if isinstance(req_json_data[key], list) else [req_json_data[key]]
+        else:
+            final_data["requirements"] = []
+    else:
+        final_data["requirements"] = []
+    
+    # Add user stories
+    if "User Stories" in data1:
+        final_data["User Stories"] = data1["User Stories"]
+    elif "Epics" in data1:
+        # Convert Epics to User Stories format
+        final_data["User Stories"] = data1["Epics"]
+    else:
+        final_data["User Stories"] = []
+    
+    # Add test cases
+    if "testCases" in data2:
+        final_data["testCases"] = data2["testCases"]
+    elif "Test Cases" in data2:
+        final_data["testCases"] = data2["Test Cases"]
+    else:
+        final_data["testCases"] = []
+    
     # Convert to JSON format
-    req_json = json.dumps(data0, indent=4)
-    #parse jsondata into a python dictionary
-    req_json_data = json.loads(req_json)
-
-    #Merge req json with combined data
-    req_json_data.update(combined_data)
-
-    # Convert combined_data back to JSON format
-    final_json = json.dumps(req_json_data, indent=4)
+    final_json = json.dumps(final_data, indent=4)
 
     with open(output_path, 'w') as file:
         file.write(final_json)
-
+    
     print(f"✅ Output saved to: {output_path}")
     return output_path

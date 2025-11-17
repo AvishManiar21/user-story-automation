@@ -1,0 +1,40 @@
+{
+  "integrated_at": "20251115_201214",
+  "total_stories": 4,
+  "story_ids": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "stories": [
+    {
+      "definitionOfDone": "• Data Collection: The system successfully transmits aggregated weather data to the Data Management System for at least 90% of test cases within a 2-hour window.",
+      "description": "The system must collect weather data so that accurate forecasts can be generated",
+      "id": 1,
+      "testCases": "Test: Verify that the system must collect weather data\nExpected: Functionality works as specified in the user story",
+      "title": "Collect Weather Data"
+    },
+    {
+      "definitionOfDone": "• Satellite Communication: The system successfully transmits data to all wilderness weather stations via satellite at least 95% of the time, as measured by a minimum of 30 consecutive transmissions.",
+      "description": "The system must communicate with all wilderness weather stations via satellite so that system health can be monitored",
+      "id": 2,
+      "testCases": "Test: Verify that the system must communicate with all wilderness weather stations via satellite\nExpected: Functionality works as specified in the user story",
+      "title": "Communicate All Wilderness Weather Stations"
+    },
+    {
+      "definitionOfDone": "• Battery Charging: The battery charging functionality is implemented correctly, ensuring that batteries are charged when possible and remaining within the safe operating range.",
+      "description": "The system must ensure that batteries are charged when possible so that the weather station remains self-contained",
+      "id": 3,
+      "testCases": "Test: Verify that the system must ensure that batteries are charged when possible\nExpected: Functionality works as specified in the user story",
+      "title": "Ensure That Batteries Are Charged"
+    },
+    {
+      "definitionOfDone": "• Dynamic Reconfiguration: The dynamic reconfiguration feature allows for successful replacement of at least 80% of the software components without causing a system downtime, and all replaced components are thoroughly tested to ensure compatibility with the new version.",
+      "description": "The system must dynamically reconfigure parts of the software so that new versions can be implemented",
+      "id": 4,
+      "testCases": "Test: Verify that the system must dynamically reconfigure parts of the software\nExpected: Functionality works as specified in the user story",
+      "title": "Dynamically Reconfigure Parts Of Software"
+    }
+  ]
+}

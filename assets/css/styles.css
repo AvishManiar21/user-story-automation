@@ -169,6 +169,8 @@ body {
     transition: background-color 0.2s;
     font-size: 16px;
     color: #333;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .story-item:hover {
@@ -226,6 +228,21 @@ body {
     color: #666;
     line-height: 1.7;
     padding-left: 4px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    max-width: 100%;
+    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.detail-value ul, .detail-value li {
+    margin-left: 20px;
+    margin-bottom: 8px;
+}
+
+.detail-value strong {
+    color: #333;
+    font-weight: 600;
 }
 
 .btn-integrate {

@@ -1,47 +1,104 @@
+// Store selected file globally
+let selectedFile = null;
+
 // Handle file selection
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (file) {
         const input = document.getElementById('projectDescription');
         input.value = file.name;
-        
-        // Store file for later use
-        // In a real application, you might want to read the file content here
+        selectedFile = file; // Store file for API call
         console.log('File selected:', file.name);
     }
 }
 
-// Generate User Stories - navigate to stories page
-function generateUserStories() {
+// Generate User Stories - send file to backend API
+async function generateUserStories() {
     const input = document.getElementById('projectDescription');
-    const projectDescription = input.value;
+    const fileInput = document.getElementById('fileInput');
     
-    if (!projectDescription) {
-        alert('Please select or enter a project description');
+    // Check if file is selected
+    if (!selectedFile && fileInput.files.length === 0) {
+        alert('Please select a file to upload');
         return;
     }
     
-    // Store project description in sessionStorage for later use
-    sessionStorage.setItem('projectDescription', projectDescription);
+    const file = selectedFile || fileInput.files[0];
     
-    // TODO: When backend is ready, send project description to API:
-    // fetch('/api/generate-stories', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ projectDescription: projectDescription })
-    // })
-    // .then(response => response.json())
-    // .then(stories => {
-    //     updateUserStories(stories);
-    //     window.location.href = 'stories.html';
-    // })
-    // .catch(error => {
-    //     console.error('Error generating stories:', error);
-    //     alert('Error generating user stories. Please try again.');
-    // });
+    // Show loading state
+    const generateBtn = document.querySelector('.btn-primary');
+    const originalText = generateBtn.textContent;
+    generateBtn.textContent = 'Generating...';
+    generateBtn.disabled = true;
     
-    // For now, just navigate to stories page
-    window.location.href = 'stories.html';
+    try {
+        // Create FormData to send file
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        // Send file to backend API
+        const response = await fetch('/api/generate-stories', {
+            method: 'POST',
+            body: formData
+        });
+        
+        // Get response text first to check content type
+        const responseText = await response.text();
+        
+        if (!response.ok) {
+            // Try to parse as JSON, but handle HTML/plain text errors
+            let errorMessage = `Server error: ${response.status}`;
+            try {
+                const errorData = JSON.parse(responseText);
+                errorMessage = errorData.error || errorData.message || errorMessage;
+                if (errorData.details && Array.isArray(errorData.details)) {
+                    console.error('Error details:', errorData.details);
+                }
+            } catch (e) {
+                // Response is not JSON (might be HTML error page)
+                console.error('Server returned non-JSON error:', responseText.substring(0, 200));
+                errorMessage = `Server error ${response.status}. Check server logs for details.`;
+            }
+            throw new Error(errorMessage);
+        }
+        
+        // Parse JSON response
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Failed to parse JSON response:', responseText.substring(0, 200));
+            throw new Error('Invalid JSON response from server. Check server logs.');
+        }
+        
+        if (data.success && data.stories) {
+            // Store stories in sessionStorage
+            sessionStorage.setItem('userStories', JSON.stringify(data.stories));
+            sessionStorage.setItem('projectDescription', file.name);
+            
+            // Navigate to stories page
+            window.location.href = 'stories.html';
+        } else {
+            throw new Error('Invalid response from server');
+        }
+    } catch (error) {
+        console.error('Error generating stories:', error);
+        console.error('Full error:', error);
+        
+        // Show user-friendly error message
+        let errorMsg = `Error generating user stories: ${error.message}`;
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            errorMsg += '\n\nCannot connect to server. Please make sure the Flask server is running on port 5000.';
+        } else if (error.message.includes('500')) {
+            errorMsg += '\n\nServer error occurred. Check the Flask server terminal for detailed error messages.';
+        }
+        
+        alert(errorMsg);
+    } finally {
+        // Restore button state
+        generateBtn.textContent = originalText;
+        generateBtn.disabled = false;
+    }
 }
 
 // Global array to store user stories (will be populated from backend API)
@@ -61,21 +118,13 @@ async function loadUserStories() {
         }
     }
     
-    // TODO: When backend is ready, replace this with actual API call:
-    // try {
-    //     const response = await fetch('/api/user-stories', {
-    //         method: 'GET',
-    //         headers: { 'Content-Type': 'application/json' }
-    //     });
-    //     userStories = await response.json();
-    // } catch (error) {
-    //     console.error('Error fetching user stories:', error);
-    //     userStories = [];
-    // }
+    // Stories are loaded from sessionStorage (set after generation)
+    // This allows the stories page to display the generated stories
+    // without needing a separate GET endpoint
     
-    // If no stories loaded, use placeholder data for demo
+    // If no stories loaded, show message
     if (userStories.length === 0) {
-        userStories = getPlaceholderStories();
+        console.log('No stories found. Please generate stories first.');
     }
     
     renderStoryList();
@@ -86,39 +135,6 @@ async function loadUserStories() {
     }
 }
 
-// Get placeholder stories for demo (remove when backend is connected)
-function getPlaceholderStories() {
-    return [
-        {
-            id: 1,
-            title: 'adipisicing elit, sed do eiusmod tempor.',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in.',
-            definitionOfDone: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in.',
-            testCases: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in.'
-        },
-        {
-            id: 2,
-            title: 'User Story 2 Title',
-            description: 'Description for user story 2. Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-            definitionOfDone: 'Definition of done for user story 2.',
-            testCases: 'Test cases for user story 2.'
-        },
-        {
-            id: 3,
-            title: 'User Story 3 Title',
-            description: 'Description for user story 3. Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-            definitionOfDone: 'Definition of done for user story 3.',
-            testCases: 'Test cases for user story 3.'
-        },
-        {
-            id: 4,
-            title: 'User Story 4 Title',
-            description: 'Description for user story 4. Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-            definitionOfDone: 'Definition of done for user story 4.',
-            testCases: 'Test cases for user story 4.'
-        }
-    ];
-}
 
 // Render the story list dynamically
 function renderStoryList() {
@@ -168,6 +184,65 @@ function selectStory(storyIndex) {
     updateStoryDetails(storyIndex);
 }
 
+// Format test cases for display
+function formatTestCases(testCasesStr) {
+    if (!testCasesStr || testCasesStr === '-') {
+        return '-';
+    }
+    
+    // Check if it's already a formatted string (starts with "Test:", "Test Case:", etc.)
+    const trimmed = testCasesStr.trim();
+    if (trimmed.startsWith('Test:') || 
+        trimmed.startsWith('Test Case:') || 
+        trimmed.startsWith('1.') ||
+        trimmed.startsWith('Test ') ||
+        (trimmed.includes('\n') && !trimmed.startsWith('[') && !trimmed.startsWith('{'))) {
+        // Already formatted, return as-is
+        return testCasesStr;
+    }
+    
+    try {
+        // Try to parse as JSON
+        const testCases = JSON.parse(testCasesStr);
+        
+        if (Array.isArray(testCases)) {
+            // Format array of test cases
+            return testCases.map((tc, idx) => {
+                if (typeof tc === 'object' && tc !== null) {
+                    // Handle different field name variations
+                    const name = tc.testCaseName || tc.test_case_name || tc.name || `Test ${idx + 1}`;
+                    const desc = tc.description || tc.test_description || '';
+                    const steps = Array.isArray(tc.steps) ? tc.steps.join('\n  - ') : (tc.test_steps ? tc.test_steps : '');
+                    const expected = tc.expectedResult || tc.expected_output || '';
+                    const input = tc.inputData || tc.input_data || '';
+                    const testType = tc.testType || tc.test_type || '';
+                    
+                    let formatted = `${idx + 1}. ${name}`;
+                    if (desc) formatted += `\n   Description: ${desc}`;
+                    if (input) formatted += `\n   Input: ${JSON.stringify(input)}`;
+                    if (steps) formatted += `\n   Steps:\n  - ${steps}`;
+                    if (expected) formatted += `\n   Expected: ${JSON.stringify(expected)}`;
+                    if (testType) formatted += `\n   Type: ${testType}`;
+                    return formatted;
+                }
+                return `${idx + 1}. ${tc}`;
+            }).join('\n\n');
+        } else if (typeof testCases === 'object' && testCases !== null) {
+            // Check if it's a testCases object with scenarios
+            if (testCases.testCases && Array.isArray(testCases.testCases)) {
+                return formatTestCases(JSON.stringify(testCases.testCases));
+            }
+            // Format object/dictionary
+            return JSON.stringify(testCases, null, 2);
+        }
+        
+        return testCasesStr;
+    } catch (e) {
+        // Not JSON, return as-is (it's probably already formatted)
+        return testCasesStr;
+    }
+}
+
 // Update story details in the content panel
 function updateStoryDetails(storyIndex) {
     const story = userStories[storyIndex];
@@ -177,47 +252,119 @@ function updateStoryDetails(storyIndex) {
         return;
     }
     
+    // Set title
     document.getElementById('storyTitle').textContent = story.title || '-';
+    
+    // Set description
     document.getElementById('storyDescription').textContent = story.description || '-';
-    document.getElementById('storyDoD').textContent = story.definitionOfDone || '-';
-    document.getElementById('storyTestCases').textContent = story.testCases || '-';
+    
+    // Set Definition of Done / Deliverables
+    const dodElement = document.getElementById('storyDoD');
+    if (story.definitionOfDone) {
+        // Check if it contains bullet points
+        if (story.definitionOfDone.includes('•')) {
+            dodElement.textContent = story.definitionOfDone;
+            dodElement.style.whiteSpace = 'pre-wrap';
+        } else {
+            dodElement.textContent = story.definitionOfDone;
+        }
+    } else {
+        dodElement.textContent = '-';
+    }
+    
+    // Set test cases
+    document.getElementById('storyTestCases').textContent = formatTestCases(story.testCases) || '-';
 }
 
 // Integrate a single story
-function integrateStory() {
+async function integrateStory() {
     const activeItem = document.querySelector('.story-item.active');
-    if (activeItem) {
-        const storyIndex = parseInt(activeItem.getAttribute('data-story-index'));
-        const story = userStories[storyIndex];
-        
-        if (story) {
-            alert(`Integrating User Story ${storyIndex + 1}...\n\nIn a real application, this would send a request to the backend API.`);
-            // TODO: When backend is ready, replace with actual API call:
-            // fetch('/api/integrate-story', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ storyId: story.id || storyIndex })
-            // })
-        }
-    } else {
+    if (!activeItem) {
         alert('Please select a user story to integrate.');
+        return;
+    }
+    
+    const storyIndex = parseInt(activeItem.getAttribute('data-story-index'));
+    const story = userStories[storyIndex];
+    
+    if (!story) {
+        alert('Story not found.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/integrate-story', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                storyId: story.id || (storyIndex + 1),
+                story: story  // Send full story data for saving
+            })
+        });
+        
+        const responseText = await response.text();
+        
+        if (!response.ok) {
+            let errorMessage = `Server error: ${response.status}`;
+            try {
+                const errorData = JSON.parse(responseText);
+                errorMessage = errorData.error || errorData.message || errorMessage;
+            } catch (e) {
+                console.error('Server returned non-JSON error:', responseText.substring(0, 200));
+            }
+            throw new Error(errorMessage);
+        }
+        
+        const data = JSON.parse(responseText);
+        alert(`Story ${story.id || (storyIndex + 1)} integrated successfully!`);
+        console.log('Integration response:', data);
+    } catch (error) {
+        console.error('Error integrating story:', error);
+        alert(`Error integrating story: ${error.message}`);
     }
 }
 
 // Integrate all stories
-function integrateAll() {
+async function integrateAll() {
     if (userStories.length === 0) {
         alert('No user stories available to integrate.');
         return;
     }
     
-    alert(`Integrating all ${userStories.length} user stories...\n\nIn a real application, this would send a request to the backend API.`);
-    // TODO: When backend is ready, replace with actual API call:
-    // fetch('/api/integrate-all', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ storyIds: userStories.map(s => s.id) })
-    // })
+    if (!confirm(`Are you sure you want to integrate all ${userStories.length} user stories?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/integrate-all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                storyIds: userStories.map(s => s.id),
+                stories: userStories  // Send full stories data for saving
+            })
+        });
+        
+        const responseText = await response.text();
+        
+        if (!response.ok) {
+            let errorMessage = `Server error: ${response.status}`;
+            try {
+                const errorData = JSON.parse(responseText);
+                errorMessage = errorData.error || errorData.message || errorMessage;
+            } catch (e) {
+                console.error('Server returned non-JSON error:', responseText.substring(0, 200));
+            }
+            throw new Error(errorMessage);
+        }
+        
+        const data = JSON.parse(responseText);
+        alert(`All ${userStories.length} stories integrated successfully!`);
+        console.log('Integration response:', data);
+    } catch (error) {
+        console.error('Error integrating all stories:', error);
+        alert(`Error integrating stories: ${error.message}`);
+    }
 }
 
 // Initialize stories page

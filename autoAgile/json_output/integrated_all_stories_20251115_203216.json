@@ -1,0 +1,56 @@
+{
+  "integrated_at": "20251115_203216",
+  "total_stories": 6,
+  "story_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "stories": [
+    {
+      "definitionOfDone": "• System Communication: The system successfully transmits data from weather stations to the management system at least 95% of the time, with an average transmission rate of less than 1 minute, and all transmitted data is accurate within a tolerance of 5%.",
+      "description": "The system must communicate with weather stations via satellite to monitor health, provide reports of problems, update embedded software, and remotely control weather station systems in case of issues.",
+      "id": 1,
+      "testCases": "Test Case: \nTest Case: \nTest Case: \nTest Case: ",
+      "title": "Communicate Weather Stations Via Satellite"
+    },
+    {
+      "definitionOfDone": "• Fault Reporting: The system successfully transmits at least 90% of reported faults to the management system within a 5-minute window, with no more than 2 consecutive failed transmissions.",
+      "description": "The system must report faults to the management system.",
+      "id": 2,
+      "testCases": "Test Case: \nTest Case: \nTest Case: ",
+      "title": "Report Faults To Management"
+    },
+    {
+      "definitionOfDone": "• System Power Management: The system power management functionality includes: automatic battery charging when possible, generator shutdown in potentially damaging weather conditions (e.g. high wind), and logging of power events for 30 days.",
+      "description": "The system must ensure batteries are charged when possible and shut down generators in potentially damaging weather conditions.",
+      "id": 3,
+      "testCases": "Test Case: \nTest Case: ",
+      "title": "Ensure Batteries Are Charged When"
+    },
+    {
+      "definitionOfDone": "• System Reconfiguration: The system reconfiguration process is automated, and the software update and instrument switching are successfully completed without errors or data loss. The system is restored to a known good state.",
+      "description": "The system must allow for software updates and backup instrument switching in case of system failure.",
+      "id": 4,
+      "testCases": "Test Case: \nTest Case: \nTest Case: ",
+      "title": "Allow Software Updates Backup Instrument"
+    },
+    {
+      "definitionOfDone": "• Source Basis: The key components are: 1. **Weather Station System**: Collects weather data, performs initial data processing, and transmits it to the data management system.\n• Data Collection: The system successfully collects and transmits at least 90% of scheduled weather data within a 5-minute window, with an average transmission latency of less than 2 seconds.",
+      "description": "The system must collect weather data, perform initial data processing, and transmit it to the data management system.",
+      "id": 5,
+      "testCases": "Test Case: \nTest Case: \nTest Case: \nTest Case: \nTest Case: ",
+      "title": "Collect Weather Data Perform Initial"
+    },
+    {
+      "definitionOfDone": "• Data Processing: The processed data is successfully archived in a retrievable format, including CSV files with metadata, and the system logs all processing steps.",
+      "description": "The system must collect data from all wilderness weather stations, process and analyze data, and archive it in a retrievable format for other systems.",
+      "id": 6,
+      "testCases": "Test Case: \nTest Case: \nTest Case: \nTest Case: ",
+      "title": "Collect Data From All Wilderness"
+    }
+  ]
+}

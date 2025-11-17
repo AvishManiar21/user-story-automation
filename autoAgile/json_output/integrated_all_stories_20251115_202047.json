@@ -1,0 +1,40 @@
+{
+  "integrated_at": "20251115_202047",
+  "total_stories": 4,
+  "story_ids": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "stories": [
+    {
+      "definitionOfDone": "• System Integration: The system is successfully integrated with other systems, and all APIs are functioning as expected. The integration is tested with a minimum of 90% success rate.\n• Data Processing: The data processing component is able to process weather data from all stations within the specified time frame (less than 30 minutes). The processed data is accurate and complete, with no errors or inconsistencies detected during testing.",
+      "description": "The system must collect weather data from all stations, process it, and transmit it to the Data Management and Archiving System for storage and retrieval so that accurate weather forecasts can be generated.",
+      "id": 1,
+      "testCases": "Test: Verify that the system must collect weather data from all stations, process it, and transmit it to the data management and archiving system for storage and retrieval\nExpected: Functionality works as specified in the user story",
+      "title": "Collect Weather Data All Stations"
+    },
+    {
+      "definitionOfDone": "• Source Basis: Monitors wilderness weather station health via satellite communication, provides reports of issues, and updates embedded software to ensure system reliability.\n• Deliverables: {'System Monitoring': {'definition_of_done': 'The system monitoring functionality is fully implemented, including real-time data collection, alert notifications for critical conditions, and accurate reporting of system status.'}, 'Software Updates': {'definition_of_done': 'Embedded software has been updated to the latest version, with all changes documented in a release notes file. The update process is automated and reversible.'}}",
+      "description": "The system must monitor wilderness weather station health via satellite communication, provide reports of issues, and update embedded software to ensure system reliability so that critical systems remain operational.",
+      "id": 2,
+      "testCases": "Test: Verify that the system must monitor wilderness weather station health via satellite communication, provide reports of issues, and update embedded software to ensure system reliability\nExpected: Functionality works as specified in the user story",
+      "title": "Monitor Wilderness Weather Station Health"
+    },
+    {
+      "definitionOfDone": "• Power Management: The system successfully manages power by automatically charging batteries when possible and shutting down generators in damaging weather conditions, ensuring minimal downtime and data loss.",
+      "description": "The system must manage system power: Ensures batteries are charged when possible, but shuts down generators in damaging weather conditions to prevent damage or loss of data so that the system remains operational.",
+      "id": 3,
+      "testCases": "Test: Verify that the system must manage system power: ensures batteries are charged when possible, but shuts down generators in damaging weather conditions to prevent damage or loss of data\nExpected: Functionality works as specified in the user story",
+      "title": "Manage System Power: Ensures Batteries"
+    },
+    {
+      "definitionOfDone": "• System Reconfiguration: The system reconfiguration process is automated, and all necessary steps are completed within 30 minutes. The system's functionality remains unchanged after a reconfiguration. All backup instruments are successfully integrated into the system.",
+      "description": "The system must allow for dynamic reconfiguration: Replaces software parts with new versions and switches backup instruments into the system upon failure to ensure continuous operation so that the system remains operational.",
+      "id": 4,
+      "testCases": "Test: Verify that the system must allow for dynamic reconfiguration: replaces software parts with new versions and switches backup instruments into the system upon failure to ensure continuous operation\nExpected: Functionality works as specified in the user story",
+      "title": "Allow Dynamic Reconfiguration: Replaces Software"
+    }
+  ]
+}

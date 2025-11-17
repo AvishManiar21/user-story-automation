@@ -5,12 +5,24 @@ Handles document uploads and generates user stories using autoAgile backend
 import os
 import json
 import tempfile
+import logging
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import sys
 from dotenv import load_dotenv
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Load environment variables from .env file
 # Explicitly specify the .env file path to ensure it's found

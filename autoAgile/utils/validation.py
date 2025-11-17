@@ -152,10 +152,10 @@ def validate_requirements_completeness(requirements_json, epics_json):
             'story_count': story_count
         }
     except (json.JSONDecodeError, TypeError, AttributeError) as e:
+        issues = [f"Error validating completeness: {str(e)}"]
         return {
             'valid': False,
             'issues': [f"Error validating completeness: {str(e)}"],
-            'issue_count': 1,
             'requirement_count': 0,
             'story_count': 0
         }

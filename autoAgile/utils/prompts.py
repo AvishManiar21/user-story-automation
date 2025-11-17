@@ -84,7 +84,12 @@ def refine_doc(doc_text: str, chat, mode)->str:
     return cleaned
 
 def extract_list(doc_text:str,chat)->str:
+    """Extract requirements list from document text using LLM."""
     try:
+        if not doc_text or not doc_text.strip():
+            print("[ERROR] extract_list called with empty document text")
+            return '{"requirements": []}'
+        
         prompt = ChatPromptTemplate.from_messages([
             ("system", """You are a requirements extraction system. Extract user stories, deliverables, and test cases from the provided source text.
 
@@ -143,16 +148,27 @@ Return ONLY valid JSON, no markdown, no explanations."""),
             ("user", "{input}")
         ])
         chain = prompt | chat | output_parser
+        
+        print("[INFO] Invoking LLM for requirement extraction...")
         re = chain.invoke({"input": doc_text})
-        if re is None or not re.strip():
-            print("[ERROR] extract_list returned None or empty")
+        
+        if re is None:
+            print("[ERROR] extract_list LLM call returned None")
             return '{"requirements": []}'
+        
+        if not re.strip():
+            print("[ERROR] extract_list LLM call returned empty string")
+            return '{"requirements": []}'
+        
+        print(f"[OK] extract_list succeeded, returned {len(re)} characters")
         return re
+        
     except Exception as e:
         print(f"[ERROR] extract_list failed: {e}")
         import traceback
         traceback.print_exc()
-        raise Exception(f"Failed to extract requirements: {str(e)}") from e
+        # Return empty requirements instead of raising to allow retry
+        return '{"requirements": []}'
 
 def compare_answer(answer_left, answer_right,chat)->bool:
     prompt = (PromptTemplate.from_template("""Please compare the two input software requirement lists and determine whether
@@ -187,57 +203,119 @@ def self_consistency(answers: list[str], chat)->str:
     print(result)
     return result
 
-def rank_answer(answer_left, answer_right,chat, mode="debug")->bool:
-    prompt = (PromptTemplate.from_template("""As a software developer, you vote for the software requirement list that is more detailed and specific.\n
-                                           \nGiven two input texts, the first:\n
-                                        {input_first}\n and the second:\n" {input_second}\n", which one you vote for?
-                                           Please only answer with your vote."""))
+def rank_answer(answer_left, answer_right,chat, mode="debug")->str:
+    """Rank two answers and return the better one. Returns answer_left as fallback if ranking fails."""
+    try:
+        prompt = (PromptTemplate.from_template("""As a software developer, you vote for the software requirement list that is more detailed and specific.\n
+                                               \nGiven two input texts, the first:\n
+                                            {input_first}\n and the second:\n" {input_second}\n", which one you vote for?
+                                               Please only answer with your vote."""))
 
-    chain = prompt | chat | output_parser
-    better = None
-    re_text = chain.invoke({"input_first":answer_left, "input_second":answer_right})
-    if '1' in re_text.lower() or 'first' in re_text.lower():
-        better = answer_left
-    elif '2' in re_text.lower() or "second" in re_text.lower():
-        better = answer_right
-    if mode == "debug":
-        print("=============================\n")
-        print(re_text)
-        print("===========the better result is=========\n")
-        print(better)
-        print("=============================\n")
-    return better
+        chain = prompt | chat | output_parser
+        better = answer_left  # Default fallback
+        re_text = chain.invoke({"input_first":answer_left, "input_second":answer_right})
+        if '1' in re_text.lower() or 'first' in re_text.lower():
+            better = answer_left
+        elif '2' in re_text.lower() or "second" in re_text.lower():
+            better = answer_right
+        if mode == "debug":
+            print("=============================\n")
+            print(re_text)
+            print("===========the better result is=========\n")
+            print(better)
+            print("=============================\n")
+        return better
+    except Exception as e:
+        print(f"[WARNING] rank_answer failed: {e}, using first answer as fallback")
+        # Return the first answer as fallback if ranking fails
+        return answer_left
 
 def c_o_t(answers: list[str], chat, mode="debug")->str:
+    """Chain of thought: rank multiple answers and return the best one."""
+    if not answers:
+        raise Exception("c_o_t called with empty answers list")
+    
+    if len(answers) == 1:
+        # Only one answer, return it directly (no need to rank)
+        print("[INFO] Only one requirement extraction succeeded, using it directly")
+        return answers[0]
+    
     better = answers[0]
-    for answer in answers[1:]:
-        better = rank_answer(better, answer, chat, mode)
+    for i, answer in enumerate(answers[1:], 1):
+        try:
+            better = rank_answer(better, answer, chat, mode)
+            if better is None:
+                print(f"[WARNING] rank_answer returned None for comparison {i}, keeping previous result")
+                better = answers[0]  # Fallback to first answer
+        except Exception as e:
+            print(f"[WARNING] rank_answer failed for comparison {i}: {e}, keeping previous result")
+            # Continue with current 'better' value
+    
+    if better is None or not better.strip():
+        print("[WARNING] c_o_t result is None or empty, using first answer as fallback")
+        better = answers[0]
+    
     return better
 
 
 def extract_functionarity(doc_text:str,chat, mode="debug")->str:
+    """Extract requirements from document text using multiple attempts and consolidation."""
     try:
+        if not doc_text or not doc_text.strip():
+            raise Exception("Document text is empty or None")
+        
+        print(f"[INFO] Starting requirement extraction (mode: {mode})")
+        print(f"[INFO] Document text length: {len(doc_text)} characters")
+        
         requirements = []
+        successful_attempts = 0
+        
         for i in range(threshold):
             try:
+                print(f"[INFO] Attempt {i+1}/{threshold} to extract requirements...")
                 req = extract_list(doc_text, chat)
                 if req and req.strip():
                     requirements.append(req)
+                    successful_attempts += 1
+                    print(f"[OK] Attempt {i+1} succeeded, extracted {len(req)} characters")
                 else:
                     print(f"[WARNING] extract_list attempt {i+1} returned empty, skipping")
             except Exception as e:
                 print(f"[WARNING] extract_list attempt {i+1} failed: {e}, continuing...")
+                import traceback
+                if mode == "debug":
+                    traceback.print_exc()
                 continue
         
         if not requirements:
             print("[ERROR] All extract_list attempts failed or returned empty")
-            raise Exception("Failed to extract any requirements from document")
+            raise Exception("Failed to extract any requirements from document after all attempts")
         
-        result = c_o_t(requirements, chat, mode)
-        if result is None or not result.strip():
-            print("[ERROR] c_o_t returned None or empty")
-            raise Exception("Failed to consolidate requirements")
-        return result
+        print(f"[OK] Successfully extracted requirements from {successful_attempts}/{threshold} attempts")
+        print(f"[INFO] Consolidating {len(requirements)} requirement extractions...")
+        
+        try:
+            result = c_o_t(requirements, chat, mode)
+            if result is None or not result.strip():
+                print("[ERROR] c_o_t returned None or empty")
+                # Fallback: use the first successful extraction
+                if requirements:
+                    print("[FALLBACK] Using first successful extraction as result")
+                    result = requirements[0]
+                else:
+                    raise Exception("Failed to consolidate requirements and no fallback available")
+            
+            print(f"[OK] Requirements consolidated successfully, result length: {len(result)} characters")
+            return result
+        except Exception as e:
+            print(f"[ERROR] c_o_t failed: {e}")
+            # Fallback: use the first successful extraction
+            if requirements:
+                print("[FALLBACK] Using first successful extraction as result due to consolidation failure")
+                return requirements[0]
+            else:
+                raise Exception(f"Failed to consolidate requirements: {str(e)}") from e
+                
     except Exception as e:
         print(f"[ERROR] extract_functionarity failed: {e}")
         import traceback
@@ -275,6 +353,38 @@ Return as a clean numbered list, one requirement per line."""),
 def extract_epics(requirements:str,chat, mode)->str:
     pp = """You are a requirements extraction system. Extract user stories, deliverables, and test cases from the provided source text.
 
+🚨 CRITICAL: SYSTEM BOUNDARY ENFORCEMENT 🚨
+
+The source text may describe MULTIPLE systems. You MUST identify which system each requirement belongs to and ONLY extract requirements for the PRIMARY TARGET SYSTEM.
+
+COMMON SYSTEM TYPES IN SOURCE TEXTS:
+1. **Individual Component System** (e.g., "Weather Station System") - ONE instance doing its job
+   - Example: "The weather station collects data" → EXTRACT THIS
+   - Example: "The station processes data locally" → EXTRACT THIS
+
+2. **Aggregation/Management System** (e.g., "Data Management System") - Collects from MULTIPLE instances
+   - Example: "The system collects data from ALL weather stations" → DO NOT EXTRACT (wrong system)
+   - Example: "The system archives data for other systems" → DO NOT EXTRACT (wrong system)
+   - Keywords: "all stations", "multiple", "aggregates from", "collects from all"
+
+3. **Monitoring/Maintenance System** (e.g., "Station Maintenance System") - Monitors MULTIPLE instances
+   - Example: "The system monitors ALL weather stations" → DO NOT EXTRACT (wrong system)
+   - Example: "The system provides reports of problems across stations" → DO NOT EXTRACT (wrong system)
+   - Keywords: "monitors stations", "reports problems", "remote control of stations"
+
+EXTRACTION RULES:
+✅ EXTRACT: Requirements describing what ONE instance of the target system does
+✅ EXTRACT: Self-contained operations (collects, processes, stores, manages its own resources)
+❌ DO NOT EXTRACT: Requirements about "all instances" or "multiple instances"
+❌ DO NOT EXTRACT: Requirements about collecting from other systems
+❌ DO NOT EXTRACT: Requirements about monitoring other systems
+❌ DO NOT EXTRACT: Requirements about archiving for other systems
+
+VALIDATION CHECK:
+Before including a requirement, ask: "Does this describe what ONE instance does, or what a system managing MULTIPLE instances does?"
+- If ONE instance → EXTRACT
+- If MULTIPLE instances → SKIP (wrong system)
+
 CRITICAL RULES:
 
 1. ONLY extract requirements EXPLICITLY stated in the source text
@@ -282,6 +392,7 @@ CRITICAL RULES:
 3. DO NOT add features common to other systems (auth, search, profiles, etc.)
 4. If functionality is not mentioned in the source, DO NOT include it
 5. Every requirement must have a direct quote from the source as evidence
+6. ONLY extract requirements for the PRIMARY TARGET SYSTEM (not aggregation/monitoring systems)
 
 ZERO TOLERANCE FOR INVENTED METRICS:
 ❌ NEVER add: percentages, time windows, success rates, specific numbers
@@ -439,11 +550,30 @@ ZERO TOLERANCE FOR INVENTED METRICS:
 ❌ NEVER write: "90%", "2 hours", "30 transmissions", "80% of components"
 ✅ ONLY USE: qualitative terms from source text
 
-TEST CASES MUST BE CONCRETE:
+🚨 CRITICAL: TEST CASES MUST BE CONCRETE AND SPECIFIC 🚨
+
+ZERO TOLERANCE FOR TEMPLATE TEST CASES:
 ❌ NEVER write: "Verify that the system must [requirement]"
 ❌ NEVER write: "Functionality works as specified"
-❌ NEVER write: Generic test outputs like "weather_data"
-✅ ALWAYS write: Specific input data + Expected output data with concrete values
+❌ NEVER write: "Functionality works as specified in the user story"
+❌ NEVER write: "Test cases will be defined during test planning"
+❌ NEVER write: Generic test outputs like "weather_data", "data", "result"
+❌ NEVER write: Vague expected outputs without concrete values
+✅ ALWAYS write: Specific input data with concrete values + Expected output data with concrete values
+✅ ALWAYS write: Test names that describe the specific scenario being tested
+✅ ALWAYS write: Expected outputs with actual data types, formats, and example values
+
+TEMPLATE DETECTION - IF YOU SEE THESE PATTERNS, YOU'RE WRONG:
+- "Verify that the system must..." → WRONG (template)
+- "Functionality works as specified" → WRONG (template)
+- "Test: [requirement copy-paste]" → WRONG (template)
+- Expected: "weather_data" → WRONG (too generic)
+- Expected: "success" → WRONG (too generic, add details)
+
+REQUIRED FORMAT - CONCRETE TEST CASES:
+✅ Test name: "Collect temperature reading from sensor TEMP-001"
+✅ Input: {{"instrument": "temperature_sensor", "sensor_id": "TEMP-001", "interval": "60_seconds"}}
+✅ Expected: {{"value": 20.5, "unit": "celsius", "timestamp": "2025-11-17T12:30:00Z", "status": "valid"}}
 
 COMPLETENESS REQUIREMENT:
 - Create test cases for EVERY requirement (minimum 2 scenarios per requirement)
@@ -463,16 +593,22 @@ Step 4: Create Test Cases
   * Environmental conditions (high wind, extreme temperatures)
   * Failover scenarios (backup instrument switching, generator shutdown)
 
-CONCRETE TEST CASE FORMAT:
-❌ BAD - Generic:
+CONCRETE TEST CASE FORMAT - EXAMPLES:
+
+❌ BAD - Generic Template (DO NOT USE):
   "Test: Verify that the system must collect weather data
    Expected: Functionality works as specified"
+   
+❌ BAD - Another Template (DO NOT USE):
+  "Test: Verify that the system must [requirement]
+   Expected: Functionality works as specified in the user story"
 
-✅ GOOD - Specific:
+✅ GOOD - Specific with Concrete Data (USE THIS):
 {{
-  "test_name": "Collect temperature reading",
+  "test_name": "Collect temperature reading from sensor TEMP-001",
   "input": {{
     "instrument": "temperature_sensor",
+    "sensor_id": "TEMP-001",
     "reading_interval": "60_seconds"
   }},
   "expected_output": {{
@@ -480,6 +616,23 @@ CONCRETE TEST CASE FORMAT:
     "unit": "celsius",
     "timestamp": "2025-11-15T10:30:00Z",
     "status": "valid"
+  }}
+}}
+
+✅ GOOD - Another Specific Example:
+{{
+  "test_name": "Transmit aggregated hourly data via satellite",
+  "input": {{
+    "data_type": "aggregated_weather_data",
+    "satellite_status": "connected",
+    "data_size": "1024_bytes",
+    "timestamp": "2025-11-15T10:00:00Z"
+  }},
+  "expected_output": {{
+    "transmission_status": "success",
+    "bytes_sent": 1024,
+    "acknowledgment_received": true,
+    "transmission_time": "2025-11-15T10:00:05Z"
   }}
 }}
 

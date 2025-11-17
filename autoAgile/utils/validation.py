@@ -147,6 +147,7 @@ def validate_requirements_completeness(requirements_json, epics_json):
         return {
             'valid': len(issues) == 0,
             'issues': issues,
+            'issue_count': len(issues),
             'requirement_count': req_count,
             'story_count': story_count
         }
@@ -154,6 +155,7 @@ def validate_requirements_completeness(requirements_json, epics_json):
         return {
             'valid': False,
             'issues': [f"Error validating completeness: {str(e)}"],
+            'issue_count': 1,
             'requirement_count': 0,
             'story_count': 0
         }
@@ -165,12 +167,13 @@ def print_validation_report(validation_result, title="Validation Report"):
     print(f"{title}")
     print(f"{'='*60}")
     
-    if validation_result['valid']:
+    if validation_result.get('valid', False):
         print("✅ VALIDATION PASSED")
     else:
-        print(f"❌ VALIDATION FAILED ({validation_result['issue_count']} issues)")
+        issue_count = validation_result.get('issue_count', len(validation_result.get('issues', [])))
+        print(f"❌ VALIDATION FAILED ({issue_count} issues)")
         print("\nIssues found:")
-        for i, issue in enumerate(validation_result['issues'], 1):
+        for i, issue in enumerate(validation_result.get('issues', []), 1):
             print(f"  {i}. {issue}")
     
     print(f"{'='*60}\n")

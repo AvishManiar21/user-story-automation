@@ -3,264 +3,120 @@
         {
             "id": 1,
             "statement": "Collects weather data, performs initial data processing, and transmits it to the data management system.",
-            "source_quote": "The key components are: 1. **Weather Station System**: Collects weather data, performs initial data processing, and transmits it to the data management system.",
+            "source_quote": "The key components of this system are: Weather Station System: Responsible for collecting weather data, performing initial data processing, and transmitting it to the data management system.",
             "confidence": "high"
         },
         {
             "id": 2,
-            "statement": "Collects data from all wilderness weather stations, processes and analyzes data, and archives it in a retrievable format for other systems.",
-            "source_quote": "The key components are: 1. **Data Management and Archiving System**: Collects data from all wilderness weather stations, processes and analyzes data, and archives it in a retrievable format for other systems.",
+            "statement": "Collects data from all wilderness weather stations, performs data processing and analysis, and archives the data in a format retrievable by other systems.",
+            "source_quote": "The key components of this system are: Data Management and Archiving System: Collects data from all wilderness weather stations, performs data processing and analysis, and archives the data in a format retrievable by other systems, such as weather forecasting systems.",
             "confidence": "high"
         },
         {
             "id": 3,
-            "statement": "Communicates with weather stations via satellite to monitor health, provide reports of problems, update embedded software, and remotely control weather station systems in case of issues.",
-            "source_quote": "The key components are: 1. **Station Maintenance System**: Communicates with weather stations via satellite to monitor health, provide reports of problems, update embedded software, and remotely control weather station systems in case of issues.",
+            "statement": "Communicates with weather stations via satellite to monitor their health, provide reports of problems, and update embedded software.",
+            "source_quote": "The key components of this system are: Station Maintenance System: Communicates with weather stations via satellite to monitor their health, provide reports of problems, and update embedded software.",
             "confidence": "high"
         },
         {
             "id": 4,
             "statement": "Reports faults to the management system.",
-            "source_quote": "The station software has additional responsibilities: 1. **Monitoring Instruments, Power, and Communication Hardware**: Reports faults to the management system.",
+            "source_quote": "The station software has additional responsibilities: Monitoring Instruments, Power, and Communication Hardware: Reports faults to the management system.",
             "confidence": "medium"
         },
         {
             "id": 5,
-            "statement": "Ensures batteries are charged when possible and shuts down generators in potentially damaging weather conditions.",
-            "source_quote": "The station software has additional responsibilities: 1. **Managing System Power**: Ensures batteries are charged when possible and shuts down generators in potentially damaging weather conditions, such as high wind.",
+            "statement": "Ensures batteries are charged when possible, while shutting down generators in potentially damaging weather conditions (e.g., high wind).",
+            "source_quote": "The station software has additional responsibilities: Managing System Power: Ensures batteries are charged when possible, while shutting down generators in potentially damaging weather conditions (e.g., high wind).",
             "confidence": "medium"
         },
         {
             "id": 6,
             "statement": "Allows for software updates and backup instrument switching in case of system failure.",
-            "source_quote": "The station software has additional responsibilities: 1. **Dynamic Reconfiguration**: Allows for software updates and backup instrument switching in case of system failure.",
+            "source_quote": "The station software has additional responsibilities: Dynamic Reconfiguration: Allows for software updates and backup instrument switching in case of system failure.",
             "confidence": "medium"
         }
     ],
     "User Stories": [
         {
-            "User Story": "The system must communicate with weather stations via satellite to monitor health, provide reports of problems, update embedded software, and remotely control weather station systems in case of issues.",
-            "source_basis": "The key components are: 1. **Station Maintenance System**: Communicates with weather stations via satellite to monitor health, provide reports of problems, update embedded software, and remotely control weather station systems in case of issues.",
+            "User Story": "The system must collect weather data, perform initial data processing, and transmit it to the data management system so that weather forecasts are more accurate.",
+            "source_basis": "The key components of this system are: Weather Station System: Responsible for collecting weather data, performing initial data processing, and transmitting it to the data management system.",
+            "Deliverables": {}
+        },
+        {
+            "User Story": "",
+            "source_basis": "",
             "Deliverables": {
-                "System Communication": {
-                    "definition_of_done": "The system successfully transmits data from weather stations to the management system at least 95% of the time, with an average transmission rate of less than 1 minute, and all transmitted data is accurate within a tolerance of 5%."
+                "Deliverables": {
+                    "architecture_design": {
+                        "definition_of_done": "The architecture design document includes: system components diagram, data flow diagrams, interface specifications, and technology stack decisions. All components are documented with their responsibilities and interactions."
+                    },
+                    "database_schema_design": {
+                        "definition_of_done": "The database schema includes: all required tables with relationships, indexes for performance, data validation rules, and migration scripts. Schema is reviewed and approved by the database team."
+                    },
+                    "front_end_user_interface": {
+                        "definition_of_done": "The front end user interface includes: responsive design, visual styling, interactive elements, and accessibility features. All components are documented with their functionality and behavior."
+                    }
                 }
             }
         },
         {
-            "User Story": "The system must report faults to the management system.",
-            "source_basis": "The station software has additional responsibilities: 1. **Monitoring Instruments, Power, and Communication Hardware**: Reports faults to the management system.",
+            "User Story": "The system must communicate with weather stations via satellite to monitor their health, provide reports of problems, and update embedded software so that station maintenance is improved.",
+            "source_basis": "The key components of this system are: Station Maintenance System: Communicates with weather stations via satellite to monitor their health, provide reports of problems, and update embedded software.",
             "Deliverables": {
-                "Fault Reporting": {
-                    "definition_of_done": "The system successfully transmits at least 90% of reported faults to the management system within a 5-minute window, with no more than 2 consecutive failed transmissions."
+                "User Story": "The system must communicate with weather stations via satellite to monitor their health, provide reports of problems, and update embedded software so that station maintenance is improved.",
+                "source_basis": "The key components of this system are: Station Maintenance System: Communicates with weather stations via satellite to monitor their health, provide reports of problems, and update embedded software.",
+                "Deliverables": {
+                    "unique_deliverable_name": {
+                        "definition_of_done": "Remotely monitors station health through a minimum of 99.9% uptime for at least 30 days, with all stations reporting their status via satellite within 1 hour of being queried."
+                    }
                 }
             }
         },
         {
-            "User Story": "The system must ensure batteries are charged when possible and shut down generators in potentially damaging weather conditions.",
-            "source_basis": "The station software has additional responsibilities: 1. **Managing System Power**: Ensures batteries are charged when possible and shuts down generators in potentially damaging weather conditions, such as high wind.",
+            "User Story": "The system must report faults to the management system so that issues are identified and addressed promptly.",
+            "source_basis": "The station software has additional responsibilities: Monitoring Instruments, Power, and Communication Hardware: Reports faults to the management system.",
             "Deliverables": {
-                "System Power Management": {
-                    "definition_of_done": "The system power management functionality includes: automatic battery charging when possible, generator shutdown in potentially damaging weather conditions (e.g. high wind), and logging of power events for 30 days."
+                "User Story": "The system must report faults to the management system so that issues are identified and addressed promptly.",
+                "source_basis": "The station software has additional responsibilities: Monitoring Instruments, Power, and Communication Hardware: Reports faults to the management system.",
+                "Deliverables": {
+                    "Fault_Tolerance_Report": {
+                        "definition_of_done": "The system reliably reports hardware failures within 5 minutes of occurrence, including detailed error messages and diagnostic information."
+                    }
                 }
             }
         },
         {
-            "User Story": "The system must allow for software updates and backup instrument switching in case of system failure.",
-            "source_basis": "The station software has additional responsibilities: 1. **Dynamic Reconfiguration**: Allows for software updates and backup instrument switching in case of system failure.",
+            "User Story": "The system must ensure batteries are charged when possible, while shutting down generators in potentially damaging weather conditions so that power is maintained.",
+            "source_basis": "The station software has additional responsibilities: Managing System Power: Ensures batteries are charged when possible, while shutting down generators in potentially damaging weather conditions (e.g., high wind).",
             "Deliverables": {
-                "System Reconfiguration": {
-                    "definition_of_done": "The system reconfiguration process is automated, and the software update and instrument switching are successfully completed without errors or data loss. The system is restored to a known good state."
+                "User Story": "The system must ensure batteries are charged when possible, while shutting down generators in potentially damaging weather conditions so that power is maintained.",
+                "source_basis": "The station software has additional responsibilities: Managing System Power: Ensures batteries are charged when possible, while shutting down generators in potentially damaging weather conditions (e.g., high wind).",
+                "Deliverables": {
+                    "Power Management System": {
+                        "definition_of_done": "The power management system is implemented with the following features: automatic battery charging, generator shutdown in adverse weather conditions, and real-time power monitoring. The system is thoroughly tested for at least 2 weeks to ensure seamless operation."
+                    }
                 }
             }
         },
         {
-            "User Story": "The system must collect weather data, perform initial data processing, and transmit it to the data management system.",
-            "source_basis": "The key components are: 1. **Weather Station System**: Collects weather data, performs initial data processing, and transmits it to the data management system.",
+            "User Story": "The system must allow for software updates and backup instrument switching in case of system failure so that station reliability is maintained.",
+            "source_basis": "The station software has additional responsibilities: Dynamic Reconfiguration: Allows for software updates and backup instrument switching in case of system failure.",
             "Deliverables": {
-                "User Story": "The system must collect weather data, perform initial data processing, and transmit it to the data management system.",
-                "source_basis": "The key components are: 1. **Weather Station System**: Collects weather data, performs initial data processing, and transmits it to the data management system.",
-                "Data Collection": {
-                    "definition_of_done": "The system successfully collects and transmits at least 90% of scheduled weather data within a 5-minute window, with an average transmission latency of less than 2 seconds."
-                }
-            }
-        },
-        {
-            "User Story": "The system must collect data from all wilderness weather stations, process and analyze data, and archive it in a retrievable format for other systems.",
-            "source_basis": "The key components are: 1. **Data Management and Archiving System**: Collects data from all wilderness weather stations, processes and analyzes data, and archives it in a retrievable format for other systems.",
-            "Deliverables": {
-                "Data Processing": {
-                    "definition_of_done": "The processed data is successfully archived in a retrievable format, including CSV files with metadata, and the system logs all processing steps."
+                "User Story": "The system must allow for software updates and backup instrument switching in case of system failure so that station reliability is maintained.",
+                "source_basis": "The station software has additional responsibilities: Dynamic Reconfiguration: Allows for software updates and backup instrument switching in case of system failure.",
+                "Deliverables": {
+                    "Dynamic Reconfiguration Mechanism": {
+                        "definition_of_done": "The dynamic reconfiguration mechanism successfully switches to a backup instrument within 5 seconds of system failure, with no data loss or corruption.",
+                        "criteria": {
+                            "switch_time": "< 5 seconds",
+                            "data_loss": "0",
+                            "corruption": "0"
+                        }
+                    }
                 }
             }
         }
     ],
-    "testCases": [
-        {
-            "requirement_id": 1,
-            "scenarios": [
-                {
-                    "name": "Collect temperature reading",
-                    "input": {
-                        "instrument": "temperature_sensor",
-                        "reading_interval": "60s"
-                    },
-                    "expected_output": {
-                        "value": 20.5,
-                        "unit": "C",
-                        "timestamp": "2025-11-15T10:30:00Z",
-                        "status": "valid"
-                    }
-                },
-                {
-                    "name": "Collect precipitation reading",
-                    "input": {
-                        "instrument": "precipitation_sensor",
-                        "reading_interval": "60s"
-                    },
-                    "expected_output": {
-                        "value": 0.5,
-                        "unit": "mm",
-                        "timestamp": "2025-11-15T10:30:00Z",
-                        "status": "valid"
-                    }
-                }
-            ]
-        },
-        {
-            "requirement_id": 2,
-            "scenarios": [
-                {
-                    "name": "Process and analyze weather data",
-                    "input": {
-                        "data_type": "weather_data",
-                        "analysis_type": "basic_analysis"
-                    },
-                    "expected_output": {
-                        "result": "valid_result",
-                        "status": "valid"
-                    }
-                },
-                {
-                    "name": "Archive weather data in retrievable format",
-                    "input": {
-                        "data_type": "weather_data",
-                        "archive_format": "csv"
-                    },
-                    "expected_output": {
-                        "file_path": "/path/to/archive/file.csv",
-                        "status": "valid"
-                    }
-                }
-            ]
-        },
-        {
-            "requirement_id": 3,
-            "scenarios": [
-                {
-                    "name": "Communicate with weather station via satellite",
-                    "input": {
-                        "satellite_link": "active",
-                        "weather_station_id": "WS-123"
-                    },
-                    "expected_output": {
-                        "response_status": "success",
-                        "message": "Weather station online"
-                    }
-                },
-                {
-                    "name": "Report faults to management system",
-                    "input": {
-                        "fault_type": "hardware_failure",
-                        "component_id": "HW-456"
-                    },
-                    "expected_output": {
-                        "response_status": "success",
-                        "message": "Fault reported successfully"
-                    }
-                }
-            ]
-        },
-        {
-            "requirement_id": 4,
-            "scenarios": [
-                {
-                    "name": "Report faults to management system (hardware failure)",
-                    "input": {
-                        "fault_type": "hardware_failure",
-                        "component_id": "HW-456"
-                    },
-                    "expected_output": {
-                        "response_status": "success",
-                        "message": "Fault reported successfully"
-                    }
-                },
-                {
-                    "name": "Report faults to management system (software issue)",
-                    "input": {
-                        "fault_type": "software_issue",
-                        "component_id": "SW-789"
-                    },
-                    "expected_output": {
-                        "response_status": "success",
-                        "message": "Fault reported successfully"
-                    }
-                }
-            ]
-        },
-        {
-            "requirement_id": 5,
-            "scenarios": [
-                {
-                    "name": "Shut down generator in high wind",
-                    "input": {
-                        "wind_speed": 50,
-                        "generator_status": "running"
-                    },
-                    "expected_output": {
-                        "response_status": "success",
-                        "message": "Generator shut down successfully"
-                    }
-                },
-                {
-                    "name": "Shut down generator in low wind",
-                    "input": {
-                        "wind_speed": 10,
-                        "generator_status": "running"
-                    },
-                    "expected_output": {
-                        "response_status": "success",
-                        "message": "Generator shut down successfully"
-                    }
-                }
-            ]
-        },
-        {
-            "requirement_id": 6,
-            "scenarios": [
-                {
-                    "name": "Update software",
-                    "input": {
-                        "software_version": "v1.0",
-                        "update_type": "major_update"
-                    },
-                    "expected_output": {
-                        "response_status": "success",
-                        "message": "Software updated successfully"
-                    }
-                },
-                {
-                    "name": "Switch to backup instrument",
-                    "input": {
-                        "instrument_id": "BAK-123",
-                        "switch_type": "automatic_switch"
-                    },
-                    "expected_output": {
-                        "response_status": "success",
-                        "message": "Instrument switched successfully"
-                    }
-                }
-            ]
-        }
-    ]
+    "testCases": []
 }

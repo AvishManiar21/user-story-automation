@@ -1,0 +1,48 @@
+{
+  "integrated_at": "20251117_132533",
+  "total_stories": 5,
+  "story_ids": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "stories": [
+    {
+      "definitionOfDone": "• Feature Implementation: collect weather data, perform initial data processing, and transmit it to the data management system",
+      "description": "The system must collect weather data, perform initial data processing, and transmit it to the data management system so that weather forecasts are more accurate.",
+      "id": 1,
+      "testCases": "Test: collect weather data, perform initial data processing, and transmit it to the data management system\nExpected: System performs collect weather data, perform initial data processing, and transmit it to the data management system successfully with valid output data",
+      "title": "Collect Weather Data Perform Initial"
+    },
+    {
+      "definitionOfDone": "• Source Basis: The key components of this system are: Station Maintenance System: Communicates with weather stations via satellite to monitor their health, provide reports of problems, and update embedded software. • Deliverables: {'unique_deliverable_name': {'definition_of_done': 'Remotely monitors station health through a minimum of uptime for at least , with all stations reporting their status via satellite of being queried.'}}",
+      "description": "The system must communicate with weather stations via satellite to monitor their health, provide reports of problems, and update embedded software so that station maintenance is improved.",
+      "id": 2,
+      "testCases": "Test: communicate with weather stations via satellite to monitor their health, provide reports of problems, and update embedded software\nExpected: System performs communicate with weather stations via satellite to monitor their health, provide reports of problems, and update embedded software successfully with valid output data",
+      "title": "Communicate Weather Stations Via Satellite"
+    },
+    {
+      "definitionOfDone": "• Source Basis: The station software has additional responsibilities: Monitoring Instruments, Power, and Communication Hardware: Reports faults to the management system. • Deliverables: {'Fault_Tolerance_Report': {'definition_of_done': 'The system reliably reports hardware failures of occurrence, including detailed error messages and diagnostic information.'}}",
+      "description": "The system must report faults to the management system so that issues are identified and addressed promptly.",
+      "id": 3,
+      "testCases": "Test: report faults to the management system\nExpected: System performs report faults to the management system successfully with valid output data",
+      "title": "Report Faults Management System"
+    },
+    {
+      "definitionOfDone": "• Source Basis: The station software has additional responsibilities: Managing System Power: Ensures batteries are charged when possible, while shutting down generators in potentially damaging weather conditions (e.g., high wind). • Deliverables: {'Power Management System': {'definition_of_done': 'The power management system is implemented with the following features: automatic battery charging, generator shutdown in adverse weather conditions, and real-time power monitoring. The system is thoroughly tested for at least 2 weeks to ensure seamless operation.'}}",
+      "description": "The system must ensure batteries are charged when possible, while shutting down generators in potentially damaging weather conditions so that power is maintained.",
+      "id": 4,
+      "testCases": "Test: ensure batteries are charged when possible, while shutting down generators in potentially damaging weather conditions\nExpected: System performs ensure batteries are charged when possible, while shutting down generators in potentially damaging weather conditions successfully with valid output data",
+      "title": "Ensure Batteries Are Charged When"
+    },
+    {
+      "definitionOfDone": "• Source Basis: The station software has additional responsibilities: Dynamic Reconfiguration: Allows for software updates and backup instrument switching in case of system failure. • Deliverables: {'Dynamic Reconfiguration Mechanism': {'definition_of_done': 'The dynamic reconfiguration mechanism successfully switches to a backup instrument of system failure, with no data loss or corruption.', 'criteria': {'switch_time': '< ', 'data_loss': '0', 'corruption': '0'}}}",
+      "description": "The system must allow for software updates and backup instrument switching in case of system failure so that station reliability is maintained.",
+      "id": 5,
+      "testCases": "Test: allow for software updates and backup instrument switching in case of system failure\nExpected: System performs allow for software updates and backup instrument switching in case of system failure successfully with valid output data",
+      "title": "Allow Software Updates Backup Instrument"
+    }
+  ]
+}

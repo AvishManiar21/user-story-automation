@@ -6,6 +6,7 @@ import os
 import json
 import tempfile
 import logging
+import re
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -120,6 +121,131 @@ print("="*60 + "\n")
 def allowed_file(filename):
     """Check if file extension is allowed"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def is_template_test_case(test_case_text):
+    """
+    Detect if a test case is a useless template.
+    
+    Args:
+        test_case_text: String containing test case description
+    
+    Returns:
+        True if it's a template, False if it's a real test case
+    """
+    if not test_case_text or not isinstance(test_case_text, str):
+        return False
+    
+    test_lower = test_case_text.lower()
+    
+    # Template patterns
+    template_patterns = [
+        r'verify that the system must',
+        r'functionality works as specified',
+        r'functionality works as specified in the user story',
+        r'test cases will be defined',
+        r'test: verify that',
+        r'expected:.*works as specified',
+    ]
+    
+    for pattern in template_patterns:
+        if re.search(pattern, test_lower):
+            return True
+    
+    # Check if it's too generic (no concrete data)
+    if len(test_case_text) < 50:  # Very short test cases are likely templates
+        if 'verify' in test_lower and 'expected' in test_lower:
+            return True
+    
+    return False
+
+def remove_invented_metrics(text):
+    """
+    Remove invented metrics (percentages, time windows, specific numbers) from text.
+    These metrics are often fabricated by the LLM and not present in source text.
+    
+    Args:
+        text: String containing Definition of Done or other text that may have invented metrics
+    
+    Returns:
+        Cleaned text with invented metrics removed
+    """
+    if not text or not isinstance(text, str):
+        return text
+    
+    # Patterns to remove invented metrics
+    patterns_to_remove = [
+        # Percentages
+        r'\d+\.\d+%',                    # "99.9%", "95.5%"
+        r'\d+%',                         # "90%", "95%"
+        r'<\s*\d+%',                     # "<1%", "< 5%"
+        r'>\s*\d+%',                     # ">99%", "> 95%"
+        r'at least\s+\d+%',              # "at least 95%"
+        r'up to\s+\d+%',                 # "up to 90%"
+        r'\d+%\s+of\s+\w+',              # "90% of stations"
+        r'\d+%\s+\w+',                   # "90% accuracy", "95% uptime"
+        
+        # Time windows and latencies
+        r'within\s+\d+\s+\w+',          # "within 5 minutes", "within 2 hours"
+        r'less than\s+\d+\s+\w+',       # "less than 1 second", "less than 10 minutes"
+        r'more than\s+\d+\s+\w+',       # "more than 30 seconds"
+        r'\d+\s*-\s*\d+\s+\w+',         # "5-10 minutes", "2-3 seconds"
+        r'\d+\s+seconds?',               # "1 second", "2 seconds"
+        r'\d+\s+minutes?',                # "5 minutes", "10 minutes"
+        r'\d+\s+hours?',                  # "24 hours", "2 hours"
+        r'\d+\s+days?',                   # "7 days", "30 days"
+        r'does not exceed\s+\d+',        # "does not exceed 2 seconds"
+        r'latency\s+of\s+less\s+than\s+\d+',  # "latency of less than 10 minutes"
+        r'\d+\s*second\s+latency',       # "1 second latency"
+        r'\d+\s*minute\s+latency',       # "10 minute latency"
+        
+        # Count metrics
+        r'\d+\s+transmissions?',         # "30 transmissions"
+        r'\d+\s+of\s+components?',       # "80% of components" (already caught by % pattern, but keep for safety)
+        r'\d+\s+stations?',              # "90% of target stations" (when combined with %)
+        
+        # Success/error rates with numbers
+        r'\d+\.\d+%\s+accuracy',         # "99.9% accuracy"
+        r'\d+%\s+accuracy',              # "95% accuracy"
+        r'\d+\.\d+%\s+uptime',           # "99.9% uptime"
+        r'\d+%\s+uptime',                # "99% uptime"
+        r'error\s+rate\s+below\s+\d+%',  # "error rate below 5%"
+        r'error\s+rate\s+of\s+less\s+than\s+\d+%',  # "error rate of less than 1%"
+        r'error\s+rate\s+<\s+\d+%',      # "error rate <1%"
+        
+        # Specific thresholds
+        r'threshold\s+of\s+\d+',         # "threshold of 1 second"
+        r'\d+\s+threshold',              # "1-second threshold"
+    ]
+    
+    cleaned = text
+    removed_items = []
+    
+    for pattern in patterns_to_remove:
+        matches = re.finditer(pattern, cleaned, re.IGNORECASE)
+        # Collect all matches first (reverse order to preserve indices)
+        match_list = list(matches)
+        match_list.reverse()
+        
+        for match in match_list:
+            removed_items.append(match.group())
+            # Remove the matched text
+            cleaned = cleaned[:match.start()] + cleaned[match.end():]
+    
+    # Clean up extra whitespace and punctuation artifacts
+    # Remove multiple spaces
+    cleaned = re.sub(r'\s+', ' ', cleaned)
+    # Remove orphaned commas/punctuation
+    cleaned = re.sub(r',\s*,', ',', cleaned)
+    cleaned = re.sub(r',\s*\.', '.', cleaned)
+    cleaned = re.sub(r'\s+\.', '.', cleaned)
+    # Remove leading/trailing whitespace
+    cleaned = cleaned.strip()
+    
+    # Log what was removed (for debugging)
+    if removed_items:
+        print(f"[METRIC REMOVAL] Removed {len(removed_items)} invented metrics: {removed_items[:5]}...")
+    
+    return cleaned
 
 def remove_duplicate_stories(stories):
     """Remove duplicate or very similar user stories"""
@@ -318,12 +444,16 @@ def convert_stories_to_frontend_format(epics_json, test_cases_json, requirements
                                str(value))
                         # Skip if it's just "TBD" or empty
                         if dod and dod.strip() and dod.strip().upper() != 'TBD':
-                            deliverable_items.append(f"• {formatted_key}: {dod}")
+                            # Remove invented metrics from DoD
+                            dod_cleaned = remove_invented_metrics(dod)
+                            deliverable_items.append(f"• {formatted_key}: {dod_cleaned}")
                     else:
                         # Skip if value is "TBD" or empty
                         value_str = str(value).strip()
                         if value_str and value_str.upper() != 'TBD':
-                            deliverable_items.append(f"• {formatted_key}: {value_str}")
+                            # Remove invented metrics from value
+                            value_cleaned = remove_invented_metrics(value_str)
+                            deliverable_items.append(f"• {formatted_key}: {value_cleaned}")
             
             # If no deliverables found, try to infer from story text
             if not deliverable_items:
@@ -338,6 +468,8 @@ def convert_stories_to_frontend_format(epics_json, test_cases_json, requirements
                         deliverable_items.append(f"• Feature Implementation: {action_part}")
             
             definition_of_done = '\n'.join(deliverable_items) if deliverable_items else 'Deliverables will be defined during sprint planning'
+            # Remove any invented metrics from the final definition_of_done
+            definition_of_done = remove_invented_metrics(definition_of_done)
             
             # Get test cases for this story
             # Try multiple matching strategies
@@ -386,12 +518,21 @@ def convert_stories_to_frontend_format(epics_json, test_cases_json, requirements
             
             # Strategy 3: If still no match, create a basic test case from story
             if not test_cases or test_cases == '-':
-                # Generate a basic test case from the story text
+                # Generate a basic test case from the story text (but avoid templates)
                 if story_text:
                     action_part = story_text.split(' so that ')[0] if ' so that ' in story_text.lower() else story_text
-                    test_cases = f"Test: Verify that {action_part.lower()}\nExpected: Functionality works as specified in the user story"
+                    # Remove common prefixes
+                    action_part = action_part.replace('The system must ', '').replace('The system shall ', '').replace('The ', '').strip()
+                    # Create a more specific test case (not a template)
+                    test_cases = f"Test: {action_part}\nExpected: System performs {action_part.lower()} successfully with valid output data"
                 else:
                     test_cases = 'Test cases will be defined during test planning'
+            
+            # Post-process: Remove template test cases
+            if test_cases and isinstance(test_cases, str):
+                if is_template_test_case(test_cases):
+                    print(f"[TEST CASE FILTER] Detected template test case for story {idx + 1}, replacing with placeholder")
+                    test_cases = f"Test cases need to be defined with concrete input/output data for: {story_text[:100] if story_text else 'this requirement'}"
             
             # Convert to string if needed
             if isinstance(test_cases, dict):

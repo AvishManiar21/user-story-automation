@@ -122,6 +122,320 @@ def allowed_file(filename):
     """Check if file extension is allowed"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def sanitize_story_output(story):
+    """
+    Clean up story output before returning.
+    Removes internal metadata, Python dict syntax, and incomplete templates.
+    """
+    dod = story.get("definitionOfDone", "")
+    
+    if not dod or not isinstance(dod, str):
+        return story
+    
+    # Remove internal metadata
+    dod = re.sub(r'•\s*Source Basis:.*?(?=•|\Z)', '', dod, flags=re.DOTALL)
+    dod = re.sub(r'•\s*Deliverables:.*?(?=•|\Z)', '', dod, flags=re.DOTALL)
+    dod = re.sub(r'Source Basis:.*?(?=•|\n|\Z)', '', dod, flags=re.DOTALL)
+    dod = re.sub(r'Deliverables:.*?(?=•|\n|\Z)', '', dod, flags=re.DOTALL)
+    
+    # Remove Python dict syntax
+    dod = re.sub(r'\{[^}]*:[^}]*\}', '', dod)
+    
+    # Fix incomplete templates - REPLACE with generic text
+    replacements = {
+        r'collects at least\s+of required': 'collects required weather data',
+        r'ensuring at least\s+of continuous': 'ensuring continuous operation',
+        r'tested for\s+after the update': 'tested after the update',
+        r'operational for at least\s+of the time': 'operational continuously',
+        r'within a\s+\d+-\w+\s+(latency|time window)': 'efficiently',
+        r'at least\s+\d+\s*kbps': 'reliably',
+        r'with an? \w+ rate of at least \d+%': 'reliably',
+        r'at least\s+of\s+': '',  # Remove incomplete "at least of"
+        r'\s+of required': ' required',
+        r'\s+of the time': '',
+        r'for\s+after': 'after',
+    }
+    
+    for pattern, replacement in replacements.items():
+        dod = re.sub(pattern, replacement, dod, flags=re.IGNORECASE)
+    
+    # Remove specific invented metrics
+    dod = re.sub(r'\d+%\s+\w+', '', dod)
+    dod = re.sub(r'\d+-\w+\s+latency', 'efficient transmission', dod)
+    dod = re.sub(r'\d+\s*kbps', '', dod)
+    dod = re.sub(r'at least\s+\d+', '', dod)
+    
+    # Clean up whitespace
+    dod = re.sub(r'\s+', ' ', dod)
+    dod = re.sub(r'[,\s]+\.', '.', dod)
+    dod = re.sub(r'\.\s*\.', '.', dod)  # Remove double periods
+    dod = dod.strip()
+    
+    # If DoD is empty or too short after cleaning, provide fallback
+    if not dod or len(dod) < 10:
+        story_text = story.get("description", "")
+        if story_text:
+            # Extract action from story
+            action_part = story_text.split(' so that ')[0] if ' so that ' in story_text.lower() else story_text
+            action_part = action_part.replace('The system must ', '').replace('The system shall ', '').strip()
+            dod = f"System successfully implements {action_part.lower()}"
+    
+    story["definitionOfDone"] = dod
+    return story
+
+def validate_story_output(stories):
+    """
+    Validate story outputs before saving.
+    Rejects corrupted outputs with metadata leaks, incomplete templates, or duplicates.
+    
+    Returns:
+        tuple: (is_valid: bool, errors: list)
+    """
+    errors = []
+    
+    for i, story in enumerate(stories, 1):
+        dod = story.get("definitionOfDone", "")
+        story_id = story.get("id", i)
+        
+        if not dod:
+            errors.append(f"Story {story_id}: Missing Definition of Done")
+            continue
+        
+        if not isinstance(dod, str):
+            errors.append(f"Story {story_id}: Definition of Done is not a string")
+            continue
+        
+        # Check for corruption markers
+        if "Source Basis:" in dod:
+            errors.append(f"Story {story_id}: Contains 'Source Basis:' metadata")
+        
+        if "Deliverables:" in dod and dod.count("Deliverables:") > 1:
+            errors.append(f"Story {story_id}: Contains duplicate 'Deliverables:' metadata")
+        
+        if re.search(r'\{[^}]*:[^}]*\}', dod):
+            errors.append(f"Story {story_id}: Contains Python dict syntax in DoD")
+        
+        # Check for incomplete templates
+        incomplete_patterns = [
+            r'at least\s+of\s+',
+            r'for\s+after\s+',
+            r'tested for\s+$',
+            r'\s+of the time$',
+            r'\s+of required$',
+        ]
+        
+        for pattern in incomplete_patterns:
+            if re.search(pattern, dod, re.IGNORECASE):
+                errors.append(f"Story {story_id}: Incomplete template pattern detected: '{pattern}'")
+        
+        # Check for duplicate DoDs
+        for j, other in enumerate(stories[:i-1], 1):
+            other_dod = other.get("definitionOfDone", "")
+            if dod == other_dod and len(dod) > 20:  # Only flag if substantial duplicate
+                errors.append(f"Story {story_id}: Duplicate DoD with Story {other.get('id', j)}")
+    
+    if errors:
+        print("❌ VALIDATION FAILED:")
+        for error in errors:
+            print(f"  {error}")
+        return False, errors
+    
+    return True, []
+
+def generate_real_test_case(story_description):
+    """
+    Generate concrete test case instead of template based on story description.
+    
+    Args:
+        story_description: User story description text
+    
+    Returns:
+        list: List of test case dictionaries with concrete input/output
+    """
+    if not story_description or not isinstance(story_description, str):
+        return []
+    
+    # Extract action verb
+    action = ""
+    if "must" in story_description.lower():
+        parts = story_description.lower().split("must")
+        if len(parts) > 1:
+            action = parts[1].split("so that")[0].strip()
+    else:
+        # Fallback: extract first meaningful verb
+        words = story_description.lower().split()
+        verbs = ["collect", "transmit", "store", "maintain", "charge", "report", "update", "monitor", "process"]
+        for i, word in enumerate(words):
+            if word in verbs and i < len(words) - 1:
+                action = " ".join(words[i:i+5])
+                break
+    
+    if not action:
+        action = story_description[:50]
+    
+    # Generate based on action type
+    action_lower = action.lower()
+    
+    if "collect" in action_lower:
+        return [
+            {
+                "name": "Collect temperature data from sensor",
+                "input": {
+                    "instrument_type": "temperature_sensor",
+                    "sensor_id": "TEMP-001",
+                    "reading_interval_seconds": 60
+                },
+                "expected_output": {
+                    "temperature_celsius": 20.5,
+                    "timestamp": "2025-11-17T14:12:22Z",
+                    "status": "valid",
+                    "sensor_id": "TEMP-001"
+                }
+            },
+            {
+                "name": "Collect from all instrument types",
+                "input": {
+                    "collect_all_instruments": True
+                },
+                "expected_output": {
+                    "instruments_read": 6,
+                    "all_successful": True,
+                    "instrument_types": ["temperature", "pressure", "sunshine", 
+                                        "rainfall", "wind_speed", "wind_direction"]
+                }
+            }
+        ]
+    
+    elif "transmit" in action_lower:
+        return [
+            {
+                "name": "Transmit aggregated data via satellite",
+                "input": {
+                    "data_type": "aggregated_weather_data",
+                    "satellite_connection_status": "connected",
+                    "data_size_bytes": 1024
+                },
+                "expected_output": {
+                    "transmission_status": "success",
+                    "bytes_sent": 1024,
+                    "acknowledgment_received": True
+                }
+            }
+        ]
+    
+    elif "store" in action_lower or "maintain" in action_lower or "local" in action_lower:
+        return [
+            {
+                "name": "Store data during satellite outage",
+                "input": {
+                    "new_data": "sensor_readings_batch",
+                    "satellite_connection_status": "unavailable",
+                    "local_storage_available": True
+                },
+                "expected_output": {
+                    "stored_locally": True,
+                    "queued_for_transmission": True,
+                    "storage_location": "local_buffer"
+                }
+            }
+        ]
+    
+    elif "charge" in action_lower or "battery" in action_lower or "power" in action_lower:
+        return [
+            {
+                "name": "Charge battery using solar power",
+                "input": {
+                    "power_source": "solar_panel",
+                    "sunlight_available": True,
+                    "current_battery_level_percent": 45
+                },
+                "expected_output": {
+                    "battery_charging": True,
+                    "charging_rate": "normal",
+                    "estimated_full_charge_time_hours": 3
+                }
+            },
+            {
+                "name": "Shutdown generator in high wind",
+                "input": {
+                    "weather_condition": "high_wind",
+                    "wind_speed_kph": 85,
+                    "generator_status": "running"
+                },
+                "expected_output": {
+                    "generator_shutdown": True,
+                    "shutdown_reason": "damaging_weather_conditions",
+                    "using_battery_power": True
+                }
+            }
+        ]
+    
+    elif "report" in action_lower or "fault" in action_lower or "monitor" in action_lower:
+        return [
+            {
+                "name": "Detect and report instrument failure",
+                "input": {
+                    "instrument_type": "pressure_sensor",
+                    "instrument_status": "malfunction",
+                    "error_code": "ERR_SENSOR_TIMEOUT"
+                },
+                "expected_output": {
+                    "fault_detected": True,
+                    "fault_reported_to_management": True,
+                    "report_timestamp": "2025-11-17T14:12:22Z"
+                }
+            }
+        ]
+    
+    elif "update" in action_lower or "software" in action_lower or "reconfig" in action_lower:
+        return [
+            {
+                "name": "Deploy software update remotely",
+                "input": {
+                    "update_package": "station_software_v2.0.tar.gz",
+                    "deployment_method": "satellite_download",
+                    "current_version": "v1.5"
+                },
+                "expected_output": {
+                    "update_successful": True,
+                    "new_version": "v2.0",
+                    "station_operational": True,
+                    "rollback_available": True
+                }
+            }
+        ]
+    
+    elif "process" in action_lower or "aggregat" in action_lower:
+        return [
+            {
+                "name": "Process and aggregate sensor data",
+                "input": {
+                    "raw_readings": {
+                        "temperature": [20.1, 20.3, 20.2],
+                        "pressure": [1013.2, 1013.5, 1013.3]
+                    },
+                    "aggregation_period_minutes": 60
+                },
+                "expected_output": {
+                    "aggregated_data": {
+                        "avg_temperature": 20.2,
+                        "avg_pressure": 1013.33,
+                        "timestamp": "2025-11-17T14:00:00Z"
+                    },
+                    "data_ready_for_transmission": True
+                }
+            }
+        ]
+    
+    # Default generic test (but still concrete)
+    return [
+        {
+            "name": f"Test: {action[:50]}",
+            "input": {"action_requested": action},
+            "expected_output": {"action_completed": True, "status": "success"}
+        }
+    ]
+
 def is_template_test_case(test_case_text):
     """
     Detect if a test case is a useless template.
@@ -540,6 +854,13 @@ def convert_stories_to_frontend_format(epics_json, test_cases_json, requirements
             elif not isinstance(test_cases, str):
                 test_cases = str(test_cases)
             
+            # Generate real test cases if we have template or empty test cases
+            if not test_cases or test_cases == '-' or is_template_test_case(test_cases):
+                print(f"[TEST CASE GENERATION] Generating concrete test cases for story {idx + 1}")
+                real_test_cases = generate_real_test_case(story_text)
+                if real_test_cases:
+                    test_cases = json.dumps(real_test_cases, indent=2)
+            
             frontend_stories.append({
                 'id': idx + 1,
                 'title': title,
@@ -548,7 +869,28 @@ def convert_stories_to_frontend_format(epics_json, test_cases_json, requirements
                 'testCases': test_cases
             })
         
-        return frontend_stories
+        # Sanitize all stories
+        print(f"\n{'='*60}")
+        print("SANITIZATION: Cleaning story outputs...")
+        print(f"{'='*60}")
+        sanitized_stories = [sanitize_story_output(story.copy()) for story in frontend_stories]
+        
+        # Validate outputs
+        print(f"\n{'='*60}")
+        print("VALIDATION: Checking for corruption and duplicates...")
+        print(f"{'='*60}")
+        is_valid, validation_errors = validate_story_output(sanitized_stories)
+        
+        if not is_valid:
+            print(f"\n⚠️ WARNING: {len(validation_errors)} validation issues found!")
+            print("Stories will still be returned, but please review the issues above.")
+            # Continue anyway - don't block, but warn user
+        else:
+            print("✅ VALIDATION PASSED: No corruption detected!")
+        
+        print(f"{'='*60}\n")
+        
+        return sanitized_stories
     except Exception as e:
         print(f"Error converting stories: {e}")
         # Return a basic format if conversion fails

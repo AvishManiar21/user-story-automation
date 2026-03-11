@@ -1,0 +1,19 @@
+{
+  "integratedAt": "2026-03-11T18:30:29.997933Z",
+  "source": "user-story-automation",
+  "user": {
+    "email": "avishmaniar24@gmail.com",
+    "github": "AvishManiar21"
+  },
+  "totalStories": 1,
+  "stories": [
+    {
+      "definitionOfDone": "• Architecture Design: Design of the authentication and authorization module, including user roles and permissions. • Database Schema Design: Design of the user account and patient information tables, including data relationships and constraints. • User Training Documentation: User training documentation on authentication and authorization procedures.",
+      "description": "The system must allow authorized users to access and manage patient information.",
+      "id": 1,
+      "source_quote": "",
+      "testCases": "Test: allow authorized users to access and manage patient information.\nExpected: System performs allow authorized users to access and manage patient information. successfully with valid output data",
+      "title": "Allow Authorized Users To Access"
+    }
+  ]
+}

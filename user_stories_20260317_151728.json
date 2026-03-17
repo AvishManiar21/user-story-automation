@@ -1,0 +1,35 @@
+{
+  "integratedAt": "2026-03-17T15:17:28.031371Z",
+  "source": "user-story-automation",
+  "user": {
+    "email": "avishmaniar24@gmail.com",
+    "github": "AvishManiar21"
+  },
+  "totalStories": 3,
+  "stories": [
+    {
+      "definitionOfDone": "• Architecture Design: Design of the product showcase module to ensure efficient data retrieval and display. • Database Schema Design: Schema design for the product showcase database to store and retrieve IT solution information.",
+      "description": "The system must display a product showcase of available IT solutions.",
+      "id": 1,
+      "source_quote": "",
+      "testCases": "Test Case: Verify that the product showcase displays IT solutions correctly\nTest Case: Verify that demo viewing with engagement tracking works correctly\nTest Case: Verify that the RFD multi-step form works correctly\nTest Case: Verify that the contact communication hub works correctly\nTest Case: Verify that the authentication system works correctly\nTest Case: Verify that the lead management system works correctly\nTest Case: Verify that behavioral analytics viewing works correctly\nTest Case: Verify that lead status management works correctly\nTest Case: Verify that pages load within 2 seconds under normal traffic\nTest Case: Verify that encrypted password storage works correctly\nTest Case: Verify that secure login sessions work correctly\nTest Case: Verify that protection against unauthorized access works correctly\nTest Case: Verify that the system architecture supports growth in visitor traffic\nTest Case: Verify that the system maintains high uptime and prevents data loss\nTest Case: Verify that the system handles multiple user roles correctly",
+      "title": "Display A Product Showcase Of"
+    },
+    {
+      "definitionOfDone": "• User Training Documentation: User training documentation to ensure users can effectively use the demo viewing feature. • Unit Tests: Unit tests to validate the demo viewing functionality and engagement tracking.",
+      "description": "The system must allow users to view demos with engagement tracking.",
+      "id": 2,
+      "source_quote": "",
+      "testCases": "Test Case: Verify that the authentication system works correctly\nTest Case: Verify that the lead management system works correctly\nTest Case: Verify that the system architecture supports growth in visitor traffic\nTest Case: Verify that the system maintains high uptime and prevents data loss\nTest Case: Verify that the system handles multiple user roles correctly",
+      "title": "Allow Users To View Demos"
+    },
+    {
+      "definitionOfDone": "• Database Schema Design: Schema design for the RFD form database to store user input and demo information. • Production Support Plan: Development of a production support plan to handle RFD form submissions and demo requests.",
+      "description": "The system must have a multi-step Request for Demo (RFD) form to collect user information.",
+      "id": 3,
+      "source_quote": "",
+      "testCases": "Test Case: Verify that the RFD multi-step form works correctly\nTest Case: Verify that the authentication system works correctly\nTest Case: Verify that the lead management system works correctly\nTest Case: Verify that the system architecture supports growth in visitor traffic\nTest Case: Verify that the system maintains high uptime and prevents data loss\nTest Case: Verify that the system handles multiple user roles correctly",
+      "title": "Have A Multi-step Request Demo"
+    }
+  ]
+}

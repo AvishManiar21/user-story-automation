@@ -1,0 +1,35 @@
+{
+  "integratedAt": "2026-03-24T13:09:05.318761Z",
+  "source": "user-story-automation",
+  "user": {
+    "email": "avishmaniar24@gmail.com",
+    "github": "AvishManiar21"
+  },
+  "totalStories": 3,
+  "stories": [
+    {
+      "definitionOfDone": "• Architecture Design: Design of the insulin delivery module to ensure timely and accurate delivery of insulin.",
+      "description": "The system shall deliver insulin when required.",
+      "id": 1,
+      "source_quote": "",
+      "testCases": "Test: deliver insulin when required.\nExpected: System performs deliver insulin when required. successfully with valid output data",
+      "title": "Deliver Insulin When Required"
+    },
+    {
+      "definitionOfDone": "• Database Schema Design: Database schema design for storing user data, including blood sugar levels and basal insulin rates. • Unit Tests: Unit tests for insulin dosage calculation algorithm to ensure accuracy.",
+      "description": "The system shall calculate the correct amount of insulin to be delivered based on the current level of blood sugar.",
+      "id": 2,
+      "source_quote": "",
+      "testCases": "Test: calculate the correct amount of insulin to be delivered based on the current level of blood sugar.\nExpected: System performs calculate the correct amount of insulin to be delivered based on the current level of blood sugar. successfully with valid output data",
+      "title": "Calculate Correct Amount Of Insulin"
+    },
+    {
+      "definitionOfDone": "• Architecture Design: Design of the insulin dosing module to account for time elapsed since last injection. • Unit Tests: Unit tests for insulin dosing algorithm to ensure accuracy.",
+      "description": "The system shall adjust the dose of insulin according to the time since the last insulin injection.",
+      "id": 3,
+      "source_quote": "",
+      "testCases": "Test: adjust the dose of insulin according to the time since the last insulin injection.\nExpected: System performs adjust the dose of insulin according to the time since the last insulin injection. successfully with valid output data",
+      "title": "Adjust Dose Of Insulin According"
+    }
+  ]
+}

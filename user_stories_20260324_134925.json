@@ -1,0 +1,43 @@
+{
+  "integratedAt": "2026-03-24T13:49:25.163707Z",
+  "source": "user-story-automation",
+  "user": {
+    "email": "jaypatel81999@gmail.com",
+    "github": "AvishManiar21"
+  },
+  "totalStories": 4,
+  "stories": [
+    {
+      "definitionOfDone": "• Architecture Design: Design of the insulin delivery module, including the user interface and pump control algorithms.",
+      "description": "The system must be available to deliver insulin when required.",
+      "id": 1,
+      "source_quote": "",
+      "testCases": "Test: be available to deliver insulin when required.\nExpected: System performs be available to deliver insulin when required. successfully with valid output data",
+      "title": "Be Available To Deliver Insulin"
+    },
+    {
+      "definitionOfDone": "• Unit Tests: Unit tests for the insulin delivery algorithm to ensure accuracy and reliability.",
+      "description": "The system shall perform reliably and deliver the correct amount of insulin to counteract the current level of blood sugar.",
+      "id": 2,
+      "source_quote": "",
+      "testCases": "Test: perform reliably and deliver the correct amount of insulin to counteract the current level of blood sugar.\nExpected: System performs perform reliably and deliver the correct amount of insulin to counteract the current level of blood sugar. successfully with valid output data",
+      "title": "Perform Reliably Deliver Correct Amount"
+    },
+    {
+      "definitionOfDone": "• Database Schema Design: Design of the database schema to store blood glucose level data from the microsensor.",
+      "description": "The system shall accurately measure blood glucose levels using a microsensor.",
+      "id": 3,
+      "source_quote": "",
+      "testCases": "Test: accurately measure blood glucose levels using a microsensor.\nExpected: System performs accurately measure blood glucose levels using a microsensor. successfully with valid output data",
+      "title": "Accurately Measure Blood Glucose Levels"
+    },
+    {
+      "definitionOfDone": "• User Training Documentation: User training documentation for the insulin calculation algorithm, including explanations of how it works and any limitations.",
+      "description": "The system shall calculate the correct dose of insulin based on the measured blood glucose level and other relevant factors.",
+      "id": 4,
+      "source_quote": "",
+      "testCases": "Test: calculate the correct dose of insulin based on the measured blood glucose level and other relevant factors.\nExpected: System performs calculate the correct dose of insulin based on the measured blood glucose level and other relevant factors. successfully with valid output data",
+      "title": "Calculate Correct Dose Of Insulin"
+    }
+  ]
+}
